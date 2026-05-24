@@ -10,8 +10,13 @@
 
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
-import { sendPurchaseEmail, isResendConfigured } from '../../lib/email';
+import {
+  sendPurchaseEmail,
+  isResendConfigured,
+  addContactToAudience,
+} from '../../lib/email';
 import { markEventProcessed } from '../../lib/idempotency';
+import { createReferralCode, buildShareCopy } from '../../lib/referral';
 
 const STRIPE_TOLERANCE_SECONDS = 300; // default; declared explicitly per audit M3
 
@@ -114,14 +119,40 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (isResendConfigured()) {
       try {
+        // Generate referral code (best-effort — failure does not block email)
+        const stripeForReferral = new Stripe(secretKey, { apiVersion: '2025-04-30.basil' });
+        const customerId =
+          typeof session.customer === 'string' ? session.customer : null;
+        const referral = await createReferralCode({
+          stripe: stripeForReferral,
+          buyerEmail: customerEmail,
+          stripeCustomerId: customerId,
+        });
+        const shareCopy = referral ? buildShareCopy(referral.code) : null;
+
         await sendPurchaseEmail({
           toEmail: customerEmail,
           tier,
           downloadUrl,
           discordUrl,
+          referralCode: referral?.code ?? undefined,
+          tweetText: shareCopy?.tweetText,
         });
         const masked = await hashEmail(customerEmail);
-        console.log(`[webhook] Email sent to sha256:${masked} for tier ${tier}`);
+        console.log(`[webhook] Email sent to sha256:${masked} for tier ${tier} (referral=${referral?.code ?? 'none'})`);
+
+        // Tag as purchase contact in Audience for follow-up drip
+        const audienceSource =
+          tier === 'pro' ? 'pro-purchase' :
+          tier === 'team' ? 'team-purchase' :
+          'starter-purchase';
+        const audienceResult = await addContactToAudience({
+          email: customerEmail,
+          source: audienceSource,
+        });
+        if (!audienceResult.ok) {
+          console.warn(`[webhook] Audience insert failed (${audienceResult.reason}) sha256:${masked}`);
+        }
       } catch (err) {
         // Log but do not 5xx — Stripe would retry indefinitely
         console.error('[webhook] Email send failed:', err);

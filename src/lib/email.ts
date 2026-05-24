@@ -16,6 +16,39 @@ function getResend(): Resend {
 }
 
 /**
+ * Add a contact to a Resend Audience for ongoing mailing-list use.
+ *
+ * Resend Audiences = the primary mailing list. We keep BCC to founder
+ * as a backup feed while the Audience is still populating.
+ *
+ * Failure to add a contact must NOT block the user response (mailing-list
+ * insertion is secondary to the welcome email).
+ */
+export async function addContactToAudience(params: {
+  email: string;
+  firstName?: string;
+  source: 'free-skill' | 'starter-purchase' | 'pro-purchase' | 'team-purchase';
+}): Promise<{ ok: boolean; reason?: string }> {
+  const audienceId = import.meta.env.RESEND_AUDIENCE_ID;
+  if (!audienceId || audienceId.startsWith('aud_placeholder')) {
+    return { ok: false, reason: 'audience-not-configured' };
+  }
+  try {
+    const resend = getResend();
+    await resend.contacts.create({
+      email: sanitizeEmailAddress(params.email),
+      firstName: params.firstName ?? '',
+      unsubscribed: false,
+      audienceId,
+    });
+    return { ok: true };
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : 'unknown';
+    return { ok: false, reason: detail };
+  }
+}
+
+/**
  * Reject header-injection attempts in any user-controlled value spliced into
  * email addresses. CRLF + angle-brackets in a `from`/`to` field can split a
  * single header into multiple, enabling spoofing.
@@ -42,10 +75,16 @@ function buildPurchaseEmailHtml(params: {
   tier: string;
   downloadUrl: string;
   discordUrl: string;
+  referralCode?: string;
+  tweetText?: string;
 }): string {
   const tier = escapeHtml(params.tier);
   const downloadUrl = escapeHtml(params.downloadUrl);
   const discordUrl = escapeHtml(params.discordUrl);
+  const referralCode = params.referralCode ? escapeHtml(params.referralCode) : '';
+  const tweetIntent = params.tweetText
+    ? `https://twitter.com/intent/tweet?text=${encodeURIComponent(params.tweetText)}`
+    : '';
 
   const tierLabel =
     tier === 'starter' ? 'Starter Pack' :
@@ -95,10 +134,18 @@ function buildPurchaseEmailHtml(params: {
     <a href="${discordUrl}" class="btn-secondary">Join Discord</a>
     ` : ''}
 
+    ${referralCode ? `
+    <div style="margin-top: 28px; padding: 20px 24px; background: rgba(124,92,255,0.06); border: 1px solid rgba(124,92,255,0.18); border-radius: 12px;">
+      <p style="font-size: 14px; color: #e8e8ed; margin: 0 0 8px; font-weight: 600;">Share &amp; earn — your code: <code style="color: #7c5cff; font-size: 15px;">${referralCode}</code></p>
+      <p style="font-size: 13px; margin: 0 0 14px;">Send this code to a friend. They get 30% off. The first 5 redemptions get you a 30% cash payout (paid monthly). Code expires in 60 days.</p>
+      ${tweetIntent ? `<a href="${tweetIntent}" class="btn-secondary" style="font-size: 13px;">Share on X</a>` : ''}
+    </div>
+    ` : ''}
+
     <p style="margin-top: 24px; font-size: 13px;">
       Questions? Reply to this email or write to
-      <a href="mailto:hello@skillsforge.dev">hello@skillsforge.dev</a>.
-      7-day money-back guarantee — just ask.
+      <a href="mailto:support@skillsforge.dev">support@skillsforge.dev</a>.
+      30-day money-back guarantee — just ask.
     </p>
 
     <div class="footer">
@@ -172,6 +219,8 @@ export async function sendPurchaseEmail(params: {
   tier: string;
   downloadUrl: string;
   discordUrl: string;
+  referralCode?: string;
+  tweetText?: string;
 }): Promise<void> {
   const resend = getResend();
   const fromEmail = sanitizeEmailAddress(

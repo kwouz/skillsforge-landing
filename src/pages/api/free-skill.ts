@@ -17,7 +17,11 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod/v4';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { sendFreeSkillEmail, isResendConfigured } from '../../lib/email';
+import {
+  sendFreeSkillEmail,
+  isResendConfigured,
+  addContactToAudience,
+} from '../../lib/email';
 import { clientKey, gcRateLimit, rateLimit } from '../../lib/ratelimit';
 
 const RequestSchema = z.object({
@@ -139,6 +143,16 @@ export const POST: APIRoute = async ({ request }) => {
       skillContent,
       bccEmail: founderEmail, // founder gets a live signup feed
     });
+
+    // Add to Resend Audience for drip campaigns. Don't await as critical —
+    // failure here must not break the user response.
+    const audienceResult = await addContactToAudience({
+      email,
+      source: 'free-skill',
+    });
+    if (!audienceResult.ok) {
+      console.warn(`[free-skill] Audience insert failed (${audienceResult.reason}) for sha256:${masked}`);
+    }
 
     console.log(`[free-skill] Sent free skill to sha256:${masked}`);
   } catch (err) {
