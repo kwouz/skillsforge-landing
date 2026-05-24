@@ -17,6 +17,9 @@ import {
 } from '../../lib/email';
 import { markEventProcessed } from '../../lib/idempotency';
 import { createReferralCode, buildShareCopy } from '../../lib/referral';
+import { mintDownloadToken } from '../../lib/download-token';
+
+const RELEASE_VERSION = '1.0.0';
 
 const STRIPE_TOLERANCE_SECONDS = 300; // default; declared explicitly per audit M3
 
@@ -106,11 +109,24 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // Delivery URLs — fail-fast if not configured in production
-    const downloadUrl = import.meta.env.GITHUB_RELEASE_ZIP_URL;
+    // Mint a signed download token. The customer's welcome email gets a
+    // tokenized URL on our domain — the endpoint streams the private ZIP
+    // via a server-side GitHub PAT. Self-expiring, no DB.
+    const downloadSecret = import.meta.env.DOWNLOAD_SECRET;
+    const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? 'https://skillsforge.dev';
+    const token = mintDownloadToken({
+      secret: downloadSecret ?? '',
+      email: customerEmail,
+      tier,
+      version: RELEASE_VERSION,
+    });
+    const downloadUrl = token
+      ? `${siteUrl}/api/download/${token}`
+      : import.meta.env.GITHUB_RELEASE_ZIP_URL;
     const discordUrl = import.meta.env.DISCORD_INVITE_URL;
+
     if (!downloadUrl || !discordUrl) {
-      console.error('[webhook] Missing GITHUB_RELEASE_ZIP_URL or DISCORD_INVITE_URL env');
+      console.error('[webhook] Missing download/Discord env');
       return new Response(JSON.stringify({ received: true, configError: true }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
