@@ -1,0 +1,43 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer
+  class="py-12 px-4 sm:px-6"
+  style="border-top: 1px solid rgba(255,255,255,0.06);"
+>
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+      <!-- Бренд -->
+      <div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-base font-semibold" style="color: #e8e8ed; letter-spacing: -0.02em;">
+            Skills<span style="color: #7c5cff;">Forge</span>
+          </span>
+        </div>
+        <p class="text-xs" style="color: #8888a0; max-width: 240px;">
+          Production-grade Claude Code skills for SEO &amp; GEO professionals.
+        </p>
+      </div>
+
+      <!-- Навигация -->
+      <div class="flex flex-wrap gap-6 text-sm" style="color: #8888a0;">
+        <a href="#skills" style="text-decoration: none; color: #8888a0;" class="hover:text-white transition-colors">Skills</a>
+        <a href="#pricing" style="text-decoration: none; color: #8888a0;" class="hover:text-white transition-colors">Pricing</a>
+        <a href="#faq" style="text-decoration: none; color: #8888a0;" class="hover:text-white transition-colors">FAQ</a>
+        <a href="/free-skill" style="text-decoration: none; color: #8888a0;" class="hover:text-white transition-colors">Free skill</a>
+        <a href="mailto:hello@skillsforge.dev" style="text-decoration: none; color: #8888a0;" class="hover:text-white transition-colors">Contact</a>
+      </div>
+    </div>
+
+    <div
+      class="mt-8 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
+      style="border-top: 1px solid rgba(255,255,255,0.06); color: #8888a0;"
+    >
+      <p>&copy; {year} SkillsForge. All rights reserved.</p>
+      <div class="flex gap-4">
+        <span>Not affiliated with Anthropic or Claude.ai</span>
+      </div>
+    </div>
+  </div>
+</footer>

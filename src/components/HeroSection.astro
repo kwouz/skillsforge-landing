@@ -1,0 +1,95 @@
+---
+// Hero-секция — первое впечатление
+// Copywriter заменит тексты; структура и CTA — production-ready
+---
+
+<section
+  class="relative pt-28 pb-20 px-4 sm:px-6 hero-grid-bg overflow-hidden"
+  style="min-height: 92vh; display: flex; align-items: center;"
+>
+  <!-- Фоновый градиент-свет -->
+  <div
+    aria-hidden="true"
+    style="
+      position: absolute;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 500px;
+      background: radial-gradient(ellipse at center, rgba(124,92,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    "
+  ></div>
+
+  <div class="max-w-4xl mx-auto text-center relative z-10">
+    <!-- Бейдж -->
+    <div class="inline-flex items-center gap-2 mb-6">
+      <span
+        class="badge-accent text-xs font-medium px-3 py-1.5 rounded-full"
+        style="color: #3ddc97;"
+      >
+        11 Production-Ready Skills
+      </span>
+      <span
+        class="text-xs px-3 py-1.5 rounded-full"
+        style="background: rgba(255,255,255,0.05); color: #8888a0; border: 1px solid rgba(255,255,255,0.08);"
+      >
+        Claude Code &amp; Cursor compatible
+      </span>
+    </div>
+
+    <!-- H1 -->
+    <h1
+      class="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 leading-tight"
+      style="letter-spacing: -0.03em; color: #e8e8ed;"
+    >
+      Ship SEO and GEO audits inside
+      <span class="gradient-text">Claude Code</span>
+      <br />— faster.
+    </h1>
+
+    <!-- Подзаголовок -->
+    <p
+      class="text-lg sm:text-xl mb-10 max-w-2xl mx-auto"
+      style="color: #8888a0; line-height: 1.7;"
+    >
+      11 production-grade skills chain into one pipeline: keyword research → brief → GEO-optimized content → schema → AI monitoring. Updated monthly. No subscription required to start.
+    </p>
+
+    <!-- CTA кнопки -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+      <a
+        href="#pricing"
+        id="hero-cta-primary"
+        class="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-base transition-all glow-accent"
+        style="background: #7c5cff; color: #fff; text-decoration: none; min-width: 200px;"
+        onmouseover="this.style.background='#9070ff'; this.style.transform='translateY(-1px)'"
+        onmouseout="this.style.background='#7c5cff'; this.style.transform='translateY(0)'"
+      >
+        Get the full pack — $49 lifetime
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+
+      <a
+        href="/free-skill"
+        class="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-medium text-base transition-all"
+        style="background: rgba(255,255,255,0.05); color: #e8e8ed; text-decoration: none; border: 1px solid rgba(255,255,255,0.1); min-width: 200px;"
+        onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+        onmouseout="this.style.background='rgba(255,255,255,0.05)'"
+      >
+        Start free — one skill, no email required
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Trust line -->
+    <p class="mt-8 text-sm" style="color: #8888a0;">
+      30-day refund &nbsp;&middot;&nbsp; Instant ZIP delivery &nbsp;&middot;&nbsp; Unlimited client projects
+    </p>
+  </div>
+</section>

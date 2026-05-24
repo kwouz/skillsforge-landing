@@ -1,0 +1,213 @@
+---
+// Секция прайсинга — 3 тира, каждый запускает Stripe Checkout
+// ENV vars: STRIPE_PRICE_STARTER, STRIPE_PRICE_PRO, STRIPE_PRICE_TEAM
+---
+
+<section id="pricing" class="py-20 px-4 sm:px-6" style="border-top: 1px solid rgba(255,255,255,0.06);">
+  <div class="max-w-5xl mx-auto">
+    <!-- Заголовок -->
+    <div class="text-center mb-14">
+      <p class="text-sm font-medium mb-3" style="color: #7c5cff; letter-spacing: 0.08em; text-transform: uppercase;">
+        Pricing
+      </p>
+      <h2
+        class="text-3xl sm:text-4xl font-bold mb-4"
+        style="color: #e8e8ed; letter-spacing: -0.02em;"
+      >
+        Pay once. Use on every client.
+      </h2>
+      <p class="text-base max-w-lg mx-auto" style="color: #8888a0;">
+        30-day refund, no questions asked. Cancel monthly sub anytime. Instant ZIP delivery after purchase.
+      </p>
+    </div>
+
+    <!-- Карточки тиров -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Starter -->
+      <div
+        class="relative p-7 rounded-2xl flex flex-col"
+        style="background: #111118; border: 1px solid rgba(255,255,255,0.08);"
+      >
+        <div class="mb-6">
+          <p class="text-sm font-medium mb-1" style="color: #8888a0;">Starter</p>
+          <div class="flex items-end gap-1 mb-2">
+            <span class="text-4xl font-bold" style="color: #e8e8ed; letter-spacing: -0.03em;">$49</span>
+            <span class="text-sm mb-1.5" style="color: #8888a0;">lifetime</span>
+          </div>
+          <p class="text-sm" style="color: #8888a0;">For solo consultants who want to move fast</p>
+        </div>
+
+        <ul class="space-y-2.5 mb-8 flex-1">
+          {[
+            '11 skills v1.0 (10 paid + free teaser)',
+            'One-time ZIP — yours permanently',
+            'Single-user, unlimited client projects',
+            'Install for Claude Code, Codex, Cursor',
+            'GitHub issues access for bug reports',
+            '30-day refund — no questions asked',
+          ].map((f) => (
+            <li class="flex items-start gap-2.5 text-sm" style="color: #e8e8ed;">
+              <svg class="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8l3.5 3.5L13 4.5" stroke="#3ddc97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {f}
+            </li>
+          ))}
+        </ul>
+
+        <button
+          data-tier="starter"
+          class="checkout-btn w-full py-3 rounded-xl font-semibold text-sm transition-all"
+          style="background: rgba(255,255,255,0.07); color: #e8e8ed; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;"
+          onmouseover="this.style.background='rgba(255,255,255,0.12)'"
+          onmouseout="this.style.background='rgba(255,255,255,0.07)'"
+        >
+          Get Starter Pack
+        </button>
+      </div>
+
+      <!-- Pro — выделенный -->
+      <div
+        class="relative p-7 rounded-2xl flex flex-col"
+        style="background: #111118; border: 2px solid #7c5cff; box-shadow: 0 0 32px rgba(124,92,255,0.15);"
+      >
+        <!-- Бейдж Most Popular -->
+        <div
+          class="absolute -top-3.5 left-1/2 -translate-x-1/2 text-xs font-semibold px-3 py-1 rounded-full"
+          style="background: #7c5cff; color: #fff; white-space: nowrap;"
+        >
+          Most Popular
+        </div>
+
+        <div class="mb-6">
+          <p class="text-sm font-medium mb-1" style="color: #7c5cff;">Pro Update</p>
+          <div class="flex items-end gap-1 mb-2">
+            <span class="text-4xl font-bold" style="color: #e8e8ed; letter-spacing: -0.03em;">$14</span>
+            <span class="text-sm mb-1.5" style="color: #8888a0;">/month</span>
+          </div>
+          <p class="text-sm" style="color: #8888a0;">For consultants who want monthly updates</p>
+        </div>
+
+        <ul class="space-y-2.5 mb-8 flex-1">
+          {[
+            'Everything in Starter',
+            '+2 new skills every month',
+            'Critical updates when AI engines shift',
+            'Private Discord access',
+            'Monthly Q&A call',
+            'Cancel anytime',
+          ].map((f) => (
+            <li class="flex items-start gap-2.5 text-sm" style="color: #e8e8ed;">
+              <svg class="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8l3.5 3.5L13 4.5" stroke="#7c5cff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {f}
+            </li>
+          ))}
+        </ul>
+
+        <button
+          data-tier="pro"
+          class="checkout-btn w-full py-3 rounded-xl font-semibold text-sm transition-all glow-accent"
+          style="background: #7c5cff; color: #fff; border: none; cursor: pointer;"
+          onmouseover="this.style.background='#9070ff'"
+          onmouseout="this.style.background='#7c5cff'"
+        >
+          Get Pro Updates
+        </button>
+      </div>
+
+      <!-- Team -->
+      <div
+        class="relative p-7 rounded-2xl flex flex-col"
+        style="background: #111118; border: 1px solid rgba(255,255,255,0.08);"
+      >
+        <div class="mb-6">
+          <p class="text-sm font-medium mb-1" style="color: #8888a0;">Team</p>
+          <div class="flex items-end gap-1 mb-2">
+            <span class="text-4xl font-bold" style="color: #e8e8ed; letter-spacing: -0.03em;">$199</span>
+            <span class="text-sm mb-1.5" style="color: #8888a0;">/year</span>
+          </div>
+          <p class="text-sm" style="color: #8888a0;">5 seats — for small agencies and in-house teams</p>
+        </div>
+
+        <ul class="space-y-2.5 mb-8 flex-1">
+          {[
+            'Everything in Pro',
+            '5-seat team license',
+            'Priority support (24h SLA)',
+            'Custom skill request 1×/quarter',
+            'Invoice / PO billing',
+            'Onboarding call (30 min)',
+          ].map((f) => (
+            <li class="flex items-start gap-2.5 text-sm" style="color: #e8e8ed;">
+              <svg class="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8l3.5 3.5L13 4.5" stroke="#3ddc97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {f}
+            </li>
+          ))}
+        </ul>
+
+        <button
+          data-tier="team"
+          class="checkout-btn w-full py-3 rounded-xl font-semibold text-sm transition-all"
+          style="background: rgba(61,220,151,0.1); color: #3ddc97; border: 1px solid rgba(61,220,151,0.25); cursor: pointer;"
+          onmouseover="this.style.background='rgba(61,220,151,0.18)'"
+          onmouseout="this.style.background='rgba(61,220,151,0.1)'"
+        >
+          Get Team License
+        </button>
+      </div>
+    </div>
+
+    <!-- Гарантия -->
+    <p class="text-center mt-8 text-sm" style="color: #8888a0;">
+      All plans include a <strong style="color: #e8e8ed;">30-day no-questions-asked refund</strong>.
+      Email <a href="mailto:support@skillsforge.dev" style="color: #7c5cff; text-decoration: none;">support@skillsforge.dev</a>
+    </p>
+  </div>
+</section>
+
+<script>
+  // Stripe Checkout — клиентская часть
+  // Если STRIPE не настроен, показываем alert вместо редиректа (preview mode)
+  document.querySelectorAll<HTMLButtonElement>('.checkout-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const tier = btn.dataset.tier;
+      if (!tier) return;
+
+      btn.disabled = true;
+      const originalText = btn.textContent ?? '';
+      btn.textContent = 'Loading...';
+
+      try {
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tier }),
+        });
+
+        const data = await res.json() as { url?: string; error?: string; configured?: boolean };
+
+        if (!data.configured) {
+          // Stripe не настроен — режим preview
+          alert('Stripe is not configured yet.\n\nAdd STRIPE_SECRET_KEY and STRIPE_PRICE_* to your .env file to enable checkout.\n\nSee .env.example for details.');
+          return;
+        }
+
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert(data.error ?? 'Something went wrong. Please try again.');
+        }
+      } catch {
+        alert('Network error. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    });
+  });
+</script>

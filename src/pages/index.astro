@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NavBar from '../components/NavBar.astro';
+import HeroSection from '../components/HeroSection.astro';
+import ProblemSection from '../components/ProblemSection.astro';
+import SkillsGrid from '../components/SkillsGrid.astro';
+import PricingSection from '../components/PricingSection.astro';
+import FAQSection from '../components/FAQSection.astro';
+import Footer from '../components/Footer.astro';
+import { loadSkills } from '../lib/skills';
+import { fileURLToPath } from 'url';
+import { join, dirname } from 'path';
+
+// Путь к skills директории — через ENV или вычисляем от текущего файла
+// fileURLToPath корректно декодирует URL-encoded кириллицу и пробелы в путях
+const skillsDirEnv = import.meta.env.SKILLS_DIR;
+
+// pages/index.astro → src/pages/ → src/ → landing/ → seo-skills-pack/skills/
+// Значит от dirname(this file) нужно 3 уровня вверх + 'skills'
+const resolvedSkillsDir = skillsDirEnv
+  ? skillsDirEnv
+  : join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'skills');
+
+const skills = loadSkills(resolvedSkillsDir);
+---
+
+<BaseLayout>
+  <NavBar />
+  <main>
+    <HeroSection />
+    <ProblemSection />
+    <SkillsGrid skills={skills} />
+    <PricingSection />
+    <FAQSection />
+  </main>
+  <Footer />
+</BaseLayout>

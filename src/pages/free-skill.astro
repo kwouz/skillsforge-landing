@@ -1,0 +1,178 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NavBar from '../components/NavBar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Free SEO Meta Generator Skill — SkillsForge"
+  description="Get the free SEO Meta Generator skill for Claude Code. Generate perfect title tags and meta descriptions in seconds. No credit card required."
+>
+  <NavBar />
+  <main class="min-h-screen flex items-center justify-center px-4" style="padding-top: 100px; padding-bottom: 80px;">
+    <div class="max-w-lg w-full">
+      <!-- Бейдж -->
+      <div class="flex justify-center mb-6">
+        <span
+          class="text-xs font-medium px-3 py-1.5 rounded-full"
+          style="background: rgba(61,220,151,0.12); color: #3ddc97; border: 1px solid rgba(61,220,151,0.25);"
+        >
+          Free — no credit card required
+        </span>
+      </div>
+
+      <!-- Заголовок -->
+      <h1
+        class="text-3xl sm:text-4xl font-bold mb-4 text-center"
+        style="color: #e8e8ed; letter-spacing: -0.02em;"
+      >
+        Get the free SEO Meta Generator
+      </h1>
+      <p
+        class="text-base mb-8 text-center"
+        style="color: #8888a0; line-height: 1.7;"
+      >
+        A single Claude Code skill that generates Google-perfect title tags and meta descriptions
+        for any URL or topic — with 3 A/B variants per output.
+      </p>
+
+      <!-- Что умеет -->
+      <div
+        class="p-5 rounded-xl mb-8"
+        style="background: #111118; border: 1px solid rgba(255,255,255,0.08);"
+      >
+        <p class="text-xs font-medium mb-3" style="color: #8888a0; text-transform: uppercase; letter-spacing: 0.08em;">What you get</p>
+        <ul class="space-y-2">
+          {[
+            'Title tag: 50–60 chars, primary keyword, brand suffix',
+            'Meta description: 140–160 chars, value + soft CTA',
+            '3 variants per page for A/B testing',
+            'Character count validation built-in',
+            'Works with any Claude Code version',
+          ].map((item) => (
+            <li class="flex items-start gap-2.5 text-sm" style="color: #e8e8ed;">
+              <svg class="mt-0.5 shrink-0" width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8l3.5 3.5L13 4.5" stroke="#3ddc97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Форма email-gate -->
+      <form id="free-skill-form" class="space-y-3">
+        <div>
+          <label for="email-input" class="block text-sm font-medium mb-1.5" style="color: #e8e8ed;">
+            Your email
+          </label>
+          <input
+            type="email"
+            id="email-input"
+            name="email"
+            required
+            placeholder="you@agency.com"
+            class="w-full px-4 py-3 rounded-xl text-sm transition-all"
+            style="
+              background: #111118;
+              border: 1px solid rgba(255,255,255,0.12);
+              color: #e8e8ed;
+              outline: none;
+            "
+            onfocus="this.style.borderColor='#7c5cff'"
+            onblur="this.style.borderColor='rgba(255,255,255,0.12)'"
+          />
+        </div>
+
+        <!-- Статус сообщения -->
+        <div id="form-status" class="hidden text-sm px-4 py-3 rounded-xl"></div>
+
+        <button
+          type="submit"
+          id="submit-btn"
+          class="w-full py-3.5 rounded-xl font-semibold text-sm transition-all"
+          style="background: #7c5cff; color: #fff; border: none; cursor: pointer;"
+          onmouseover="this.style.background='#9070ff'"
+          onmouseout="this.style.background='#7c5cff'"
+        >
+          Send me the free skill
+        </button>
+
+        <p class="text-xs text-center" style="color: #8888a0;">
+          The skill will be sent to your email. Unsubscribe anytime.
+        </p>
+      </form>
+
+      <!-- Апсейл-блок -->
+      <div
+        class="mt-10 p-5 rounded-xl"
+        style="background: rgba(124,92,255,0.06); border: 1px solid rgba(124,92,255,0.15);"
+      >
+        <p class="text-sm font-medium mb-1" style="color: #e8e8ed;">Want all 11 skills?</p>
+        <p class="text-sm mb-3" style="color: #8888a0;">
+          The Starter Pack includes 10 more production-grade SEO/GEO skills.
+          One-time $49, instant delivery.
+        </p>
+        <a
+          href="/#pricing"
+          class="inline-flex items-center gap-1.5 text-sm font-medium"
+          style="color: #7c5cff; text-decoration: none;"
+        >
+          See all skills + pricing
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('free-skill-form') as HTMLFormElement;
+  const statusDiv = document.getElementById('form-status') as HTMLDivElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  function showStatus(message: string, type: 'success' | 'error') {
+    statusDiv.textContent = message;
+    statusDiv.className = `text-sm px-4 py-3 rounded-xl ${
+      type === 'success'
+        ? 'bg-green-500/10 border border-green-500/25 text-green-400'
+        : 'bg-red-500/10 border border-red-500/25 text-red-400'
+    }`;
+    statusDiv.classList.remove('hidden');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const emailInput = form.querySelector<HTMLInputElement>('#email-input');
+    if (!emailInput) return;
+
+    const email = emailInput.value.trim();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+
+    try {
+      const res = await fetch('/api/free-skill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json() as { success: boolean; message: string };
+
+      if (data.success) {
+        showStatus('Check your inbox! The skill is on its way.', 'success');
+        form.reset();
+      } else {
+        showStatus(data.message || 'Something went wrong. Please try again.', 'error');
+      }
+    } catch {
+      showStatus('Network error. Please try again.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send me the free skill';
+    }
+  });
+</script>

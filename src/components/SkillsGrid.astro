@@ -1,0 +1,99 @@
+---
+// Грид из 11 скиллов — данные передаются снаружи через props
+interface Skill {
+  slug: string;
+  name: string;
+  description: string;
+  isFree?: boolean;
+}
+
+interface Props {
+  skills: Skill[];
+}
+
+const { skills } = Astro.props;
+
+// Иконки для каждого скилла по slug
+const iconMap: Record<string, string> = {
+  'seo-pseo-generator': '⚙️',
+  'geo-aeo-optimizer': '🎯',
+  'schema-markup-engineer': '🏗️',
+  'content-brief-builder': '📋',
+  'technical-seo-auditor': '🔍',
+  'keyword-cluster-mapper': '🗺️',
+  'internal-linking-architect': '🔗',
+  'ai-mentions-monitor': '📡',
+  'backlink-outreach-engine': '📬',
+  'gbp-local-seo': '📍',
+  'free-teaser-seo-meta': '🎁',
+};
+---
+
+<section id="skills" class="py-20 px-4 sm:px-6" style="border-top: 1px solid rgba(255,255,255,0.06);">
+  <div class="max-w-6xl mx-auto">
+    <!-- Заголовок -->
+    <div class="text-center mb-14">
+      <p class="text-sm font-medium mb-3" style="color: #7c5cff; letter-spacing: 0.08em; text-transform: uppercase;">
+        What you get
+      </p>
+      <h2
+        class="text-3xl sm:text-4xl font-bold mb-4"
+        style="color: #e8e8ed; letter-spacing: -0.02em;"
+      >
+        11 skills. Every core SEO/GEO workflow.
+      </h2>
+      <p class="text-base max-w-xl mx-auto" style="color: #8888a0;">
+        Drop any skill into your Claude Code project. Works standalone or as a pipeline step.
+      </p>
+    </div>
+
+    <!-- Карточки -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {skills.map((skill) => {
+        const icon = iconMap[skill.slug] ?? '🛠️';
+        return (
+          <div
+            class="card-hover relative p-6 rounded-xl"
+            style={`background: #111118; border: 1px solid ${skill.isFree ? 'rgba(61,220,151,0.2)' : 'rgba(255,255,255,0.06)'}; cursor: default;`}
+          >
+            {skill.isFree && (
+              <span
+                class="absolute top-4 right-4 text-xs font-medium px-2 py-0.5 rounded-full"
+                style="background: rgba(61,220,151,0.12); color: #3ddc97; border: 1px solid rgba(61,220,151,0.25);"
+              >
+                FREE
+              </span>
+            )}
+            <div class="text-2xl mb-3">{icon}</div>
+            <h3
+              class="text-base font-semibold mb-2"
+              style="color: #e8e8ed; letter-spacing: -0.01em;"
+            >
+              {skill.name.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+            </h3>
+            <p class="text-sm leading-relaxed" style="color: #8888a0;">
+              {/* Берём первое предложение описания для краткости */}
+              {skill.description.split('.')[0]}.
+            </p>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Нижний CTA -->
+    <div class="text-center mt-12">
+      <a
+        href="#pricing"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all"
+        style="background: rgba(124,92,255,0.12); color: #7c5cff; border: 1px solid rgba(124,92,255,0.25); text-decoration: none;"
+        onmouseover="this.style.background='rgba(124,92,255,0.2)'"
+        onmouseout="this.style.background='rgba(124,92,255,0.12)'"
+      >
+        Get all 11 skills for $49
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

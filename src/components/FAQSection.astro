@@ -1,0 +1,115 @@
+---
+// FAQ секция — аккордеон на чистом JS без фреймворков
+const faqs = [
+  {
+    q: "What's your refund policy?",
+    a: '30-day full refund, no questions asked. Email support@skillsforge.dev with your order number. Refunds process within 5 business days via Stripe.',
+  },
+  {
+    q: 'Can I use the skills on client projects?',
+    a: 'Yes. The Starter and Pro licenses cover unlimited client projects. You cannot resell or redistribute the SKILL.md files — those are for your use only. Team license covers 5 seats at one company.',
+  },
+  {
+    q: 'How do I install the skills?',
+    a: 'Unzip the downloaded file, move the skills/ folder contents to ~/.claude/skills/, and restart your Claude Code session. Full instructions are in the README inside the ZIP and in your welcome email. Takes under 3 minutes.',
+  },
+  {
+    q: 'Do these work with Cursor?',
+    a: "Yes, with one step. Each SKILL.md works as a .cursorrules snippet — copy the skill content and append it to your project's .cursorrules file. Native Cursor skill support ships in v1.2, included in Pro at no extra cost.",
+  },
+  {
+    q: 'How often do skills get updated?',
+    a: "Pro subscribers get a drop every month: 2 new skills plus any critical updates when Google's AI Overviews behavior changes or when a major model update shifts citation patterns. Starter buyers get the v1.0 they purchased; we'll notify you of major version releases.",
+  },
+  {
+    q: 'Is there a community or support channel?',
+    a: 'Pro and Team subscribers get access to a private Discord with working SEO practitioners. We run a monthly live Q&A (60 min, recorded if you miss it). Starter buyers can use GitHub issues for technical problems.',
+  },
+  {
+    q: 'How do Team seats work?',
+    a: 'A Team license covers 5 named users at one company — meaning 5 people can install and use the skills. Need more than 5 seats? Email support@skillsforge.dev for a custom arrangement.',
+  },
+  {
+    q: 'What skills are on the roadmap?',
+    a: 'Current backlog includes: international-seo-localizer, ecommerce-pdp-optimizer, youtube-seo-skill, reddit-content-seeder, and seo-reporting-automator. Pro subscribers vote on priority each quarter via Discord poll.',
+  },
+];
+---
+
+<section id="faq" class="py-20 px-4 sm:px-6" style="border-top: 1px solid rgba(255,255,255,0.06);">
+  <div class="max-w-3xl mx-auto">
+    <!-- Заголовок -->
+    <div class="text-center mb-12">
+      <p class="text-sm font-medium mb-3" style="color: #7c5cff; letter-spacing: 0.08em; text-transform: uppercase;">
+        FAQ
+      </p>
+      <h2
+        class="text-3xl sm:text-4xl font-bold"
+        style="color: #e8e8ed; letter-spacing: -0.02em;"
+      >
+        Common questions
+      </h2>
+    </div>
+
+    <!-- Аккордеон -->
+    <div class="space-y-2" id="faq-list">
+      {faqs.map((faq, i) => (
+        <div
+          class="rounded-xl overflow-hidden"
+          style="background: #111118; border: 1px solid rgba(255,255,255,0.06);"
+        >
+          <button
+            class="faq-btn w-full flex items-center justify-between px-6 py-4 text-left"
+            data-index={i}
+            style="background: transparent; border: none; cursor: pointer; color: #e8e8ed;"
+          >
+            <span class="font-medium text-sm pr-4">{faq.q}</span>
+            <svg
+              class="faq-icon shrink-0 transition-transform duration-200"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              style="color: #8888a0;"
+            >
+              <path d="M3 6l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div
+            class="faq-answer px-6 overflow-hidden"
+            style="max-height: 0; transition: max-height 0.25s ease, padding 0.25s ease;"
+          >
+            <p class="text-sm pb-4" style="color: #8888a0; line-height: 1.7;">{faq.a}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  // Аккордеон FAQ — без лишних зависимостей
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.faq-btn');
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const answer = btn.nextElementSibling as HTMLElement;
+      const icon = btn.querySelector<SVGElement>('.faq-icon');
+      const isOpen = answer.style.maxHeight !== '0px' && answer.style.maxHeight !== '';
+
+      // Закрываем все остальные
+      document.querySelectorAll<HTMLElement>('.faq-answer').forEach((el) => {
+        el.style.maxHeight = '0px';
+      });
+      document.querySelectorAll<SVGElement>('.faq-icon').forEach((el) => {
+        el.style.transform = 'rotate(0deg)';
+      });
+
+      // Открываем текущий если был закрыт
+      if (!isOpen) {
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        if (icon) icon.style.transform = 'rotate(180deg)';
+      }
+    });
+  });
+</script>

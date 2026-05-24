@@ -1,0 +1,44 @@
+---
+// Навигационная панель — минималистичная, sticky
+---
+<nav
+  class="fixed top-0 left-0 right-0 z-50"
+  style="background: rgba(10,10,15,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.06);"
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+    <!-- Логотип -->
+    <a href="/" class="flex items-center gap-2 no-underline" style="text-decoration: none;">
+      <span
+        class="text-base font-semibold"
+        style="color: #e8e8ed; letter-spacing: -0.02em;"
+      >
+        Skills<span style="color: #7c5cff;">Forge</span>
+      </span>
+      <span
+        class="text-xs px-2 py-0.5 rounded-full font-medium"
+        style="background: rgba(124,92,255,0.15); color: #7c5cff; border: 1px solid rgba(124,92,255,0.25);"
+      >
+        SEO/GEO
+      </span>
+    </a>
+
+    <!-- Ссылки (desktop) -->
+    <div class="hidden md:flex items-center gap-6 text-sm" style="color: #8888a0;">
+      <a href="#skills" class="hover:text-white transition-colors" style="text-decoration: none;">Skills</a>
+      <a href="#pricing" class="hover:text-white transition-colors" style="text-decoration: none;">Pricing</a>
+      <a href="#faq" class="hover:text-white transition-colors" style="text-decoration: none;">FAQ</a>
+      <a href="/free-skill" class="hover:text-white transition-colors" style="text-decoration: none;">Free skill</a>
+    </div>
+
+    <!-- CTA -->
+    <a
+      href="#pricing"
+      class="text-sm font-medium px-4 py-2 rounded-lg transition-all"
+      style="background: #7c5cff; color: #fff; text-decoration: none;"
+      onmouseover="this.style.background='#9070ff'"
+      onmouseout="this.style.background='#7c5cff'"
+    >
+      Get the Pack
+    </a>
+  </div>
+</nav>

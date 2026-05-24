@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NavBar from '../components/NavBar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Purchase Successful — SkillsForge"
+  description="Your SkillsForge SEO/GEO Pack purchase was successful. Check your email for the download link."
+  noIndex={true}
+>
+  <NavBar />
+  <main class="min-h-screen flex items-center justify-center px-4" style="padding-top: 80px; padding-bottom: 80px;">
+    <div class="max-w-lg w-full text-center">
+      <!-- Иконка успеха -->
+      <div
+        class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
+        style="background: rgba(61,220,151,0.12); border: 1px solid rgba(61,220,151,0.25);"
+      >
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M6 14l5.5 5.5L22 8.5" stroke="#3ddc97" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Заголовок -->
+      <h1
+        class="text-3xl font-bold mb-4"
+        style="color: #e8e8ed; letter-spacing: -0.02em;"
+      >
+        You're in!
+      </h1>
+
+      <!-- Описание -->
+      <div
+        class="p-6 rounded-2xl mb-6 text-left"
+        style="background: #111118; border: 1px solid rgba(255,255,255,0.08);"
+      >
+        <h2 class="text-base font-semibold mb-4" style="color: #e8e8ed;">What happens next:</h2>
+        <ol class="space-y-3">
+          {[
+            { step: '1', text: 'Check your email — the ZIP download link arrives within 1 minute.' },
+            { step: '2', text: 'Unzip the skills into your Claude Code project folder.' },
+            { step: '3', text: 'Open Claude Code and run your first skill. README is inside the ZIP.' },
+          ].map((item) => (
+            <li class="flex items-start gap-3 text-sm" style="color: #8888a0;">
+              <span
+                class="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold mt-0.5"
+                style="background: rgba(124,92,255,0.15); color: #7c5cff;"
+              >
+                {item.step}
+              </span>
+              {item.text}
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <!-- Альт-действие если email не пришёл -->
+      <p class="text-sm mb-6" style="color: #8888a0;">
+        Email not in inbox within 5 minutes? Check spam or
+        <a href="mailto:hello@skillsforge.dev" style="color: #7c5cff; text-decoration: none;">
+          contact support
+        </a>.
+      </p>
+
+      <!-- Ссылки -->
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a
+          href="/"
+          class="px-5 py-2.5 rounded-xl text-sm font-medium transition-all"
+          style="background: rgba(255,255,255,0.06); color: #e8e8ed; text-decoration: none; border: 1px solid rgba(255,255,255,0.1);"
+          onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+          onmouseout="this.style.background='rgba(255,255,255,0.06)'"
+        >
+          Back to home
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

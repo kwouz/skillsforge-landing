@@ -1,0 +1,148 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  noIndex?: boolean;
+}
+
+const {
+  title = 'SkillsForge — SEO/GEO Skills for Claude Code',
+  description = '11 production-grade SEO/GEO skills for solo consultants. Pipeline-ready. From keyword research to AI citations. $49 lifetime.',
+  ogImage = '/og-image.png',
+  noIndex = false,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://skillsforge.dev');
+
+// JSON-LD разметка для GEO-сигналов
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://skillsforge.dev/#org",
+      "name": "SkillsForge",
+      "url": "https://skillsforge.dev",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://skillsforge.dev/og-image.png"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://skillsforge.dev/#product",
+      "name": "SkillsForge SEO/GEO Pack",
+      "applicationCategory": "BusinessApplication",
+      "description": "11 production-grade SEO and GEO skills for Claude Code. Automate keyword clustering, technical audits, schema markup, AI citations, and more.",
+      "operatingSystem": "Claude Code, Cursor, any AI coding assistant",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Starter — Lifetime",
+          "price": "49",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "name": "Pro Update — Monthly",
+          "price": "14",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "name": "Team — Annual",
+          "price": "199",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        }
+      ],
+      "publisher": { "@id": "https://skillsforge.dev/#org" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is a Claude Code skill?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A Claude Code skill (SKILL.md file) is a structured prompt that tells Claude exactly how to behave for a specific workflow. Drop it in your project and Claude follows a production-tested process instead of guessing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need Claude Code to use these skills?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "These skills are optimized for Claude Code but also work in Cursor, Cline, and any tool that supports SKILL.md / custom instructions files."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What do I get with the $49 Starter pack?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "11 production-grade SEO/GEO skills delivered as a ZIP to your email immediately after purchase. Includes a single-user license and lifetime access to v1.0."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a refund policy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — 30-day no-questions-asked refund. Email support@skillsforge.dev with your order number; refunds process within 5 business days via Stripe."
+          }
+        }
+      ]
+    }
+  ]
+};
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    {noIndex && <meta name="robots" content="noindex" />}
+
+    <!-- OG / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content="SkillsForge" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Favicon placeholder -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Preload Inter font через Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- JSON-LD для GEO/SEO -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body class="min-h-screen antialiased" style="background-color: #0a0a0f; color: #e8e8ed;">
+    <slot />
+  </body>
+</html>
