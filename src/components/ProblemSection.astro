@@ -1,12 +1,12 @@
 ---
-// Секция "Проблема" — почему это важно прямо сейчас
+import Icon from './Icon.astro';
 ---
 
 <section class="py-20 px-4 sm:px-6" style="border-top: 1px solid rgba(255,255,255,0.06);">
   <div class="max-w-4xl mx-auto">
     <!-- Заголовок -->
     <div class="text-center mb-14">
-      <p class="text-sm font-medium mb-3" style="color: #7c5cff; letter-spacing: 0.08em; text-transform: uppercase;">
+      <p class="text-sm font-medium mb-3" style="color: #a78bfa; letter-spacing: 0.08em; text-transform: uppercase;">
         The Problem
       </p>
       <h2
@@ -26,24 +26,32 @@
         {
           stat: '48%',
           label: 'of Google queries now show AI Overviews',
-          icon: '⚡',
+          icon: 'spark',
+          color: '#7c5cff',
         },
         {
           stat: '4–8h',
           label: 'wasted per week on repetitive SEO tasks',
-          icon: '⏱',
+          icon: 'clock',
+          color: '#a78bfa',
         },
         {
           stat: '$0',
           label: 'structured AI workflow for most agencies',
-          icon: '🔧',
+          icon: 'settings',
+          color: '#3ddc97',
         },
       ].map((item) => (
         <div
           class="text-center p-6 rounded-xl"
           style="background: #111118; border: 1px solid rgba(255,255,255,0.06);"
         >
-          <div class="text-2xl mb-2">{item.icon}</div>
+          <div
+            class="mx-auto mb-3 inline-flex items-center justify-center"
+            style={`width: 40px; height: 40px; border-radius: 10px; background: ${item.color}1f; border: 1px solid ${item.color}33;`}
+          >
+            <Icon name={item.icon} color={item.color} size={22} />
+          </div>
           <div
             class="text-3xl font-bold mb-1"
             style="color: #e8e8ed; letter-spacing: -0.03em;"

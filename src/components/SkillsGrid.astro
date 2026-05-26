@@ -1,5 +1,6 @@
 ---
-// Грид из 11 скиллов — данные передаются снаружи через props
+import Icon from './Icon.astro';
+
 interface Skill {
   slug: string;
   name: string;
@@ -13,19 +14,18 @@ interface Props {
 
 const { skills } = Astro.props;
 
-// Иконки для каждого скилла по slug
-const iconMap: Record<string, string> = {
-  'seo-pseo-generator': '⚙️',
-  'geo-aeo-optimizer': '🎯',
-  'schema-markup-engineer': '🏗️',
-  'content-brief-builder': '📋',
-  'technical-seo-auditor': '🔍',
-  'keyword-cluster-mapper': '🗺️',
-  'internal-linking-architect': '🔗',
-  'ai-mentions-monitor': '📡',
-  'backlink-outreach-engine': '📬',
-  'gbp-local-seo': '📍',
-  'free-teaser-seo-meta': '🎁',
+const iconMap: Record<string, { name: string; color: string }> = {
+  'seo-pseo-generator': { name: 'pseo', color: '#7c5cff' },
+  'geo-aeo-optimizer': { name: 'crosshair', color: '#3ddc97' },
+  'schema-markup-engineer': { name: 'schema', color: '#a78bfa' },
+  'content-brief-builder': { name: 'brief', color: '#7c5cff' },
+  'technical-seo-auditor': { name: 'scan', color: '#3ddc97' },
+  'keyword-cluster-mapper': { name: 'cluster', color: '#a78bfa' },
+  'internal-linking-architect': { name: 'link', color: '#7c5cff' },
+  'ai-mentions-monitor': { name: 'radio', color: '#3ddc97' },
+  'backlink-outreach-engine': { name: 'mail', color: '#a78bfa' },
+  'gbp-local-seo': { name: 'pin', color: '#7c5cff' },
+  'free-teaser-seo-meta': { name: 'gift', color: '#3ddc97' },
 };
 ---
 
@@ -33,7 +33,7 @@ const iconMap: Record<string, string> = {
   <div class="max-w-6xl mx-auto">
     <!-- Заголовок -->
     <div class="text-center mb-14">
-      <p class="text-sm font-medium mb-3" style="color: #7c5cff; letter-spacing: 0.08em; text-transform: uppercase;">
+      <p class="text-sm font-medium mb-3" style="color: #a78bfa; letter-spacing: 0.08em; text-transform: uppercase;">
         What you get
       </p>
       <h2
@@ -50,7 +50,7 @@ const iconMap: Record<string, string> = {
     <!-- Карточки -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {skills.map((skill) => {
-        const icon = iconMap[skill.slug] ?? '🛠️';
+        const icon = iconMap[skill.slug] ?? { name: 'wrench', color: '#7c5cff' };
         return (
           <div
             class="card-hover relative p-6 rounded-xl"
@@ -64,7 +64,12 @@ const iconMap: Record<string, string> = {
                 FREE
               </span>
             )}
-            <div class="text-2xl mb-3">{icon}</div>
+            <div
+              class="mb-4 inline-flex items-center justify-center"
+              style={`width: 44px; height: 44px; border-radius: 10px; background: ${icon.color}1f; border: 1px solid ${icon.color}33;`}
+            >
+              <Icon name={icon.name} color={icon.color} size={24} />
+            </div>
             <h3
               class="text-base font-semibold mb-2"
               style="color: #e8e8ed; letter-spacing: -0.01em;"
@@ -85,7 +90,7 @@ const iconMap: Record<string, string> = {
       <a
         href="#pricing"
         class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all"
-        style="background: rgba(124,92,255,0.12); color: #7c5cff; border: 1px solid rgba(124,92,255,0.25); text-decoration: none;"
+        style="background: rgba(124,92,255,0.12); color: #a78bfa; border: 1px solid rgba(124,92,255,0.25); text-decoration: none;"
         onmouseover="this.style.background='rgba(124,92,255,0.2)'"
         onmouseout="this.style.background='rgba(124,92,255,0.12)'"
       >
