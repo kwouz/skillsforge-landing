@@ -85,13 +85,19 @@ test.describe('Free-skill flow', () => {
   });
 
   test('rate-limit kicks in on rapid retries', async ({ request }) => {
-    const results = await Promise.all(
-      Array.from({ length: 6 }, (_, i) =>
-        request.post('/api/free-skill', { data: { email: `rl${i}+${Date.now()}@example.com` } })
-      )
-    );
-    const tooMany = results.filter((r) => r.status() === 429);
-    expect(tooMany.length).toBeGreaterThan(0);
+    // Sequential so the requests stick to one Vercel serverless instance
+    // — the in-memory limiter is per-instance, parallel requests can hit
+    // different cold starts and the test becomes flaky.
+    const stamp = Date.now();
+    const codes: number[] = [];
+    for (let i = 0; i < 6; i++) {
+      const res = await request.post('/api/free-skill', {
+        data: { email: `rl${i}+${stamp}@example.com` },
+      });
+      codes.push(res.status());
+    }
+    expect(codes, `Expected at least one 429 in ${JSON.stringify(codes)}`)
+      .toContain(429);
   });
 });
 
