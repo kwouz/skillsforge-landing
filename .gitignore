@@ -31,3 +31,10 @@ data/waitlist.json
 # jetbrains setting folder
 .idea/
 .vercel
+.env.production.local
+scripts/outreach/outreach-log.csv
+scripts/outreach/.lock
+
+# Playwright outputs
+playwright-report/
+test-results/
