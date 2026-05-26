@@ -1,0 +1,185 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NavBar from '../components/NavBar.astro';
+import Footer from '../components/Footer.astro';
+
+export const prerender = true;
+
+const rows = [
+  {
+    feature: 'Number of SEO/GEO skills',
+    skillsforge: '11 production-tested',
+    claudeSeo: '6 (general SEO only)',
+    claudeskills360: '2350 (broad, no SEO focus)',
+    awesome: '0 (curated list, not skills)',
+  },
+  {
+    feature: 'GEO / AEO coverage (AI Overviews, Perplexity, ChatGPT)',
+    skillsforge: 'Dedicated geo-aeo-optimizer + ai-mentions-monitor',
+    claudeSeo: 'Partial',
+    claudeskills360: 'No',
+    awesome: 'No',
+  },
+  {
+    feature: 'Programmatic SEO generator',
+    skillsforge: 'Yes — datasets to 1000+ pages',
+    claudeSeo: 'No',
+    claudeskills360: 'No',
+    awesome: 'No',
+  },
+  {
+    feature: 'JSON-LD schema engineer',
+    skillsforge: 'Yes — Product, FAQ, HowTo, BreadcrumbList',
+    claudeSeo: 'Generic prompt only',
+    claudeskills360: 'No',
+    awesome: 'No',
+  },
+  {
+    feature: 'Technical SEO auditor (crawl, render, CWV, hreflang)',
+    skillsforge: 'Yes — full pipeline',
+    claudeSeo: 'Yes',
+    claudeskills360: 'No',
+    awesome: 'No',
+  },
+  {
+    feature: 'Backlink outreach engine (prospecting + follow-up)',
+    skillsforge: 'Yes',
+    claudeSeo: 'No',
+    claudeskills360: 'No',
+    awesome: 'No',
+  },
+  {
+    feature: 'Updates after launch',
+    skillsforge: 'Pro tier: 2 new skills / mo',
+    claudeSeo: 'Open-source upstream',
+    claudeskills360: 'Lifetime, no updates',
+    awesome: 'Repo updates only',
+  },
+  {
+    feature: 'Price',
+    skillsforge: '$49 lifetime + $14/mo updates',
+    claudeSeo: 'Free or $69/mo community',
+    claudeskills360: '$39 lifetime',
+    awesome: 'Free',
+  },
+  {
+    feature: 'Refund window',
+    skillsforge: '30 days, no questions',
+    claudeSeo: 'N/A',
+    claudeskills360: '30 days',
+    awesome: 'N/A',
+  },
+  {
+    feature: 'Target persona',
+    skillsforge: 'Solo SEO consultants, small agencies',
+    claudeSeo: 'In-house marketers',
+    claudeskills360: 'General Claude users',
+    awesome: 'Developers exploring skills',
+  },
+];
+
+const compareSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'SkillsForge vs Free Repos — Claude Code SEO Skills Compared',
+  description:
+    'Side-by-side comparison of SkillsForge against AgriciDaniel/claude-seo, ClaudeSkills360, and awesome-claude-code lists. Coverage, updates, pricing, refund.',
+  url: 'https://skillsforge.pitchinsixty.com/compare',
+  isPartOf: { '@id': 'https://skillsforge.pitchinsixty.com/#website' },
+  mainEntity: {
+    '@type': 'Table',
+    about: 'Claude Code SEO skills comparison',
+  },
+};
+---
+
+<BaseLayout
+  title="SkillsForge vs Free Repos — Claude Code SEO Skills Compared"
+  description="Side-by-side: SkillsForge ($49) vs claude-seo (free), ClaudeSkills360 ($39), and awesome-claude-code lists. Coverage, GEO, updates, refund — see what you actually get."
+  ogImage="https://skillsforge.pitchinsixty.com/og-image.png"
+>
+  <NavBar />
+  <main style="padding-top: 100px; padding-bottom: 80px;">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <h1 class="text-3xl sm:text-5xl font-bold mb-4" style="color: #e8e8ed; letter-spacing: -0.02em;">
+        SkillsForge vs free repos: what you actually get
+      </h1>
+      <p class="text-base sm:text-lg mb-10 max-w-3xl" style="color: #8888a0; line-height: 1.7;">
+        Honest, line-by-line comparison against the three options most SEO consultants
+        evaluate before buying a Claude Code skills pack. Updated 2026-05-26.
+      </p>
+
+      <div class="overflow-x-auto mb-12">
+        <table class="w-full text-sm" style="border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+              <th class="text-left py-3 px-3" style="color: #8888a0; font-weight: 500;">Feature</th>
+              <th class="text-left py-3 px-3" style="color: #7c5cff; font-weight: 600;">SkillsForge</th>
+              <th class="text-left py-3 px-3" style="color: #8888a0; font-weight: 500;">claude-seo (free)</th>
+              <th class="text-left py-3 px-3" style="color: #8888a0; font-weight: 500;">ClaudeSkills360 ($39)</th>
+              <th class="text-left py-3 px-3" style="color: #8888a0; font-weight: 500;">awesome-claude-code</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                <td class="py-3 px-3 align-top" style="color: #e8e8ed; font-weight: 500;">{r.feature}</td>
+                <td class="py-3 px-3 align-top" style="color: #e8e8ed;">{r.skillsforge}</td>
+                <td class="py-3 px-3 align-top" style="color: #8888a0;">{r.claudeSeo}</td>
+                <td class="py-3 px-3 align-top" style="color: #8888a0;">{r.claudeskills360}</td>
+                <td class="py-3 px-3 align-top" style="color: #8888a0;">{r.awesome}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <section class="mb-10">
+        <h2 class="text-2xl font-semibold mb-4" style="color: #e8e8ed;">When a free repo is the right call</h2>
+        <p class="text-base mb-3" style="color: #8888a0; line-height: 1.7;">
+          If you have one site, two hours a week, and you enjoy stitching together prompts —
+          a free repo like AgriciDaniel/claude-seo is fine. It covers the basics, the source
+          is on GitHub, the cost is your time.
+        </p>
+        <p class="text-base" style="color: #8888a0; line-height: 1.7;">
+          Pick SkillsForge when you run multiple client projects per month and the cost of a
+          missed AI Overview citation is bigger than $49. The geo-aeo-optimizer and
+          ai-mentions-monitor skills exist exactly because that gap is where free repos stop.
+        </p>
+      </section>
+
+      <section class="mb-10">
+        <h2 class="text-2xl font-semibold mb-4" style="color: #e8e8ed;">Why we charge $49 instead of going free</h2>
+        <p class="text-base mb-3" style="color: #8888a0; line-height: 1.7;">
+          Every skill in the pack went through a real client project before shipping. Free
+          repos can't promise that. The $49 buys an opinion: this is the pipeline we use,
+          field-tested, schemas validated against Google Rich Results, GEO prompts tested
+          for Perplexity citation behavior.
+        </p>
+        <p class="text-base" style="color: #8888a0; line-height: 1.7;">
+          If it doesn't pay back in your first audit, refund — 30 days, no questions.
+        </p>
+      </section>
+
+      <div class="flex flex-col sm:flex-row gap-3 mt-12">
+        <a
+          href="/#pricing"
+          class="px-6 py-3 rounded-xl text-sm font-semibold transition-all"
+          style="background: #5e3fcc; color: #fff; text-decoration: none;"
+        >
+          See SkillsForge pricing
+        </a>
+        <a
+          href="/free-skill"
+          class="px-6 py-3 rounded-xl text-sm font-medium transition-all"
+          style="background: rgba(124,92,255,0.12); color: #7c5cff; text-decoration: none; border: 1px solid rgba(124,92,255,0.3);"
+        >
+          Try the free skill first
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<script type="application/ld+json" set:html={JSON.stringify(compareSchema)} is:inline />
