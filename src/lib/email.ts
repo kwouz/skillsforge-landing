@@ -1,6 +1,9 @@
 /**
- * Утилиты для отправки email через Resend API.
- * Используется в webhook (после оплаты) и free-skill (lead magnet).
+ * Resend email helpers — used by /api/free-skill only.
+ *
+ * Gumroad self-fulfills paid orders (welcome mail + ZIP delivery), so this
+ * module no longer handles purchase emails. The only consumer is the
+ * free-teaser email-gate.
  */
 
 import { Resend } from 'resend';
@@ -27,7 +30,7 @@ function getResend(): Resend {
 export async function addContactToAudience(params: {
   email: string;
   firstName?: string;
-  source: 'free-skill' | 'starter-purchase' | 'pro-purchase' | 'team-purchase';
+  source: 'free-skill';
 }): Promise<{ ok: boolean; reason?: string }> {
   const audienceId = import.meta.env.RESEND_AUDIENCE_ID;
   if (!audienceId || audienceId.startsWith('aud_placeholder')) {
@@ -55,6 +58,16 @@ export async function addContactToAudience(params: {
  */
 function sanitizeEmailAddress(value: string): string {
   return value.replace(/[\r\n<>]/g, '').trim();
+}
+
+/**
+ * Validates a single email address — single `local@domain` shape, no
+ * comma list. Used to reject misconfigured env values like a
+ * trailing-comma `FOUNDER_EMAIL` that would silently broadcast every
+ * free-skill signup to multiple addresses.
+ */
+function isSingleEmailAddress(value: string): boolean {
+  return /^[^\s,;<>"]+@[^\s,;<>"]+\.[^\s,;<>"]+$/.test(value);
 }
 
 /**
@@ -138,9 +151,11 @@ export async function sendFreeSkillEmail(params: {
   }
   const fromEmail = sanitizeEmailAddress(rawFrom);
   const toEmail = sanitizeEmailAddress(params.toEmail);
-  const bccEmail = params.bccEmail
-    ? sanitizeEmailAddress(params.bccEmail)
-    : undefined;
+  const rawBcc = params.bccEmail ? sanitizeEmailAddress(params.bccEmail) : undefined;
+  const bccEmail = rawBcc && isSingleEmailAddress(rawBcc) ? rawBcc : undefined;
+  if (rawBcc && !bccEmail) {
+    console.warn(`[email] Ignoring malformed BCC value (must be a single address): ${rawBcc.slice(0, 80)}`);
+  }
 
   const { error } = await resend.emails.send({
     from: `SkillsForge <${fromEmail}>`,

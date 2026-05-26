@@ -1,179 +1,138 @@
 # SkillsForge SEO/GEO Pack — Landing
 
-## Что это
+## What this is
 
-Production-ready лендинг для продажи пакета Claude Code skills "SkillsForge SEO/GEO Pack".
-Три тира ($49 lifetime / $14/mo Pro / $199/yr Team), Stripe Checkout, email-доставка ZIP через Resend.
+Production landing for SkillsForge — a paid pack of Claude Code / Codex skills for SEO/GEO specialists. Three tiers:
+- **Lifetime** — $49 one-time
+- **Pro** — $14/month
+- **Team** — $199/year (5 seats)
 
-## Стек
+Payments + file delivery + subscription billing run on **Gumroad** (Merchant of Record). The landing only redirects to Gumroad checkout URLs and handles a separate Resend-backed email gate for the free teaser skill.
 
-- Astro 6 (SSR mode) + @astrojs/vercel adapter
-- Tailwind CSS 4 (через @tailwindcss/vite, не deprecated @astrojs/tailwind)
-- Stripe 22 (Checkout Sessions + Webhooks)
-- Resend 6 (transactional email + free skill delivery)
+Live: https://skillsforge.pitchinsixty.com
+
+## Stack
+
+- Astro 6 (server output + per-page `prerender = true` on static pages)
+- `@astrojs/vercel` adapter
+- Tailwind CSS 4 via `@tailwindcss/vite`
+- Resend 6 (only used for the free-skill email gate — Gumroad handles purchase emails)
 - Zod 4 (email validation)
 - TypeScript strict
 
-## Запуск локально
+## Local dev
 
 ```bash
-# 1. Установить зависимости
 npm install
-
-# 2. Скопировать env
 cp .env.example .env
-
-# 3. Заполнить .env (см. секцию ENV ниже — минимум нужен только для просмотра)
-# Без Stripe/Resend — лендинг работает в preview mode:
-# - кнопки checkout покажут alert
-# - форма free-skill сохранит email в data/waitlist.json без отправки
-
-# 4. Запустить dev server
+# fill GUMROAD_URL_* (production URLs are fine) + Resend keys
 npm run dev
 # → http://localhost:4321
 ```
 
-## Структура файлов
+Without the env vars, the landing runs in **preview mode**:
+- pricing buttons show an alert
+- `/free-skill` accepts the email but does not actually send (logs a hashed-email signup)
+
+In production (`NODE_ENV=production`), the free-skill endpoint returns 503 if Resend is misconfigured rather than silently faking success.
+
+## File layout
 
 ```
 landing/
 ├── src/
 │   ├── layouts/
-│   │   └── BaseLayout.astro      # HTML shell + SEO meta + JSON-LD
+│   │   └── BaseLayout.astro          # HTML shell + SEO meta + JSON-LD
 │   ├── components/
-│   │   ├── NavBar.astro           # Fixed sticky nav
-│   │   ├── HeroSection.astro      # H1 + CTA кнопки
-│   │   ├── ProblemSection.astro   # Проблема + статы
-│   │   ├── SkillsGrid.astro       # 11 карточек скиллов
-│   │   ├── PricingSection.astro   # 3 тира + Stripe кнопки
-│   │   ├── FAQSection.astro       # Аккордеон FAQ
+│   │   ├── NavBar.astro
+│   │   ├── HeroSection.astro
+│   │   ├── ProblemSection.astro
+│   │   ├── SkillsGrid.astro
+│   │   ├── PricingSection.astro      # 3 tiers, redirects to Gumroad
+│   │   ├── FAQSection.astro
 │   │   └── Footer.astro
 │   ├── pages/
-│   │   ├── index.astro            # Главная (лендинг)
-│   │   ├── success.astro          # После оплаты
-│   │   ├── cancel.astro           # Отмена checkout
-│   │   ├── free-skill.astro       # Email-gate бесплатного скилла
+│   │   ├── index.astro               # prerendered
+│   │   ├── success.astro             # prerendered
+│   │   ├── cancel.astro              # prerendered
+│   │   ├── free-skill.astro          # prerendered
 │   │   └── api/
-│   │       ├── checkout.ts        # POST → создаёт Stripe Session
-│   │       ├── webhook.ts         # POST → Stripe webhook → email доставка
-│   │       └── free-skill.ts      # POST → email + waitlist
+│   │       ├── checkout.ts           # POST → returns Gumroad URL per tier
+│   │       └── free-skill.ts         # POST → sends teaser + adds to Resend audience
 │   ├── lib/
-│   │   ├── skills.ts              # Парсер SKILL.md frontmatter
-│   │   └── email.ts               # Resend шаблоны и отправка
-│   └── styles/
-│       └── global.css             # Tailwind + design tokens
+│   │   ├── skills.ts                 # SKILL.md frontmatter parser + fallback
+│   │   ├── free-skill-content.ts     # inlined teaser SKILL.md
+│   │   ├── tiers.ts                  # Tier union + isTier guard
+│   │   ├── email.ts                  # Resend wrapper for free-skill flow
+│   │   └── ratelimit.ts              # in-memory per-IP limiter
+│   └── styles/global.css             # Tailwind + design tokens
 ├── public/
 │   ├── favicon.svg
-│   ├── og-image.svg               # OG-image (заменить на PNG 1200x630)
-│   └── og-image.png               # Placeholder — заменить реальным
-├── data/
-│   └── waitlist.json              # Email waitlist (в .gitignore для публичных репо)
-├── .env.example
-├── .gitignore
+│   ├── og-image.png                  # 1200×630 OG image
+│   └── logo.svg
 ├── astro.config.mjs
+├── vercel.json                       # security headers + Gumroad CSP
 ├── package.json
 └── tsconfig.json
 ```
 
-## ENV переменные
+## Environment variables
 
-Все переменные документированы в `.env.example`. Минимум для live режима:
+All vars are documented in `.env.example`. The minimum for live production:
 
-| Переменная | Где взять | Зачем |
+| Variable | Source | Purpose |
 |---|---|---|
-| `STRIPE_SECRET_KEY` | dashboard.stripe.com/apikeys | Создание Checkout Sessions |
-| `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard > Webhooks | Валидация подписи webhook |
-| `STRIPE_PRICE_STARTER` | Stripe Dashboard > Products | Price ID продукта $49 |
-| `STRIPE_PRICE_PRO` | Stripe Dashboard > Products | Price ID подписки $14/mo |
-| `STRIPE_PRICE_TEAM` | Stripe Dashboard > Products | Price ID подписки $199/yr |
-| `RESEND_API_KEY` | resend.com/api-keys | Отправка email |
-| `RESEND_FROM_EMAIL` | Верифицированный домен в Resend | From-адрес писем |
-| `GITHUB_RELEASE_ZIP_URL` | GitHub Release URL | Ссылка на ZIP в доставочном email |
-| `DISCORD_INVITE_URL` | Discord Server Settings > Invites | Приглашение для Pro/Team |
+| `GUMROAD_URL_STARTER` | Gumroad product URL | Lifetime checkout target |
+| `GUMROAD_URL_PRO` | Gumroad product URL | Pro subscription checkout target |
+| `GUMROAD_URL_TEAM` | Gumroad product URL | Team subscription checkout target |
+| `RESEND_API_KEY` | resend.com/api-keys | Free-skill email send |
+| `RESEND_FROM_EMAIL` | Verified Resend domain | From-address (e.g. `hello@pitchinsixty.com`) |
+| `RESEND_AUDIENCE_ID` | Resend Audience UI | Audience to add free-skill signups to |
+| `FOUNDER_EMAIL` | personal mailbox | BCC on every free-skill send (live signup feed) |
+| `DISCORD_INVITE_URL` | Discord server invite | Embedded in transactional emails |
+| `PUBLIC_SITE_URL` | `https://skillsforge.pitchinsixty.com` | Canonical + OG URL |
+| `SITE` | same as above | Astro canonical |
 
-## Настройка Stripe Products
+The `/api/checkout` validator requires a Gumroad URL to start with `https://` and resolve to `*.gumroad.com` — see `src/pages/api/checkout.ts`.
 
-### В Stripe Dashboard создай 3 продукта:
+## Gumroad setup
 
-1. **SkillsForge Starter Pack**
-   - Type: One-time
-   - Price: $49.00 USD
-   - Скопируй Price ID → `STRIPE_PRICE_STARTER`
+The seller-side runbook lives one level up at `../GUMROAD-SETUP-GUIDE.md`. Per-tier ZIP uploads:
+- Starter → `../dist/skillsforge-seo-pack-v1.0.0.zip`
+- Pro → `../dist/skillsforge-pro-pack-v1.0.0.zip`
+- Team → `../dist/skillsforge-team-pack-v1.0.0.zip`
 
-2. **SkillsForge Pro Update**
-   - Type: Recurring
-   - Price: $14.00 USD / month
-   - Скопируй Price ID → `STRIPE_PRICE_PRO`
+Do not upload the Lifetime ZIP into the Pro product — Pro subscribers must receive Pro-exclusive content only, or the subscription leaks the full Lifetime value at $14.
 
-3. **SkillsForge Team License**
-   - Type: Recurring
-   - Price: $199.00 USD / year
-   - Скопируй Price ID → `STRIPE_PRICE_TEAM`
+## Skills directory
 
-### Настройка Webhook:
+`src/lib/skills.ts` reads `../../../../skills/` relative to the page file at build time. On Vercel the parent `skills/` folder is not in the deploy root, so `loadSkills` returns a hardcoded fallback metadata list — keep that list in sync with the actual `skills/` frontmatter if you change skill names or descriptions.
 
-1. Stripe Dashboard > Developers > Webhooks > Add endpoint
-2. URL: `https://your-domain.com/api/webhook`
-3. Events: выбери `checkout.session.completed`
-4. Скопируй Signing Secret → `STRIPE_WEBHOOK_SECRET`
+The free teaser skill content is inlined as `src/lib/free-skill-content.ts` to avoid the same filesystem issue on Vercel.
 
-### Тестирование Stripe локально:
+## Resend setup
 
-```bash
-# Установи Stripe CLI
-brew install stripe/stripe-cli/stripe
+1. Sign up on resend.com
+2. Add and verify the sending domain (`pitchinsixty.com`)
+3. Publish the required SPF + DKIM + DMARC records — see security audit at `../workspace/security-report.md` for exact values
+4. Create an API key → `RESEND_API_KEY`
+5. Create an Audience → `RESEND_AUDIENCE_ID`
+6. Set `RESEND_FROM_EMAIL` to the verified sender
 
-# Авторизуйся
-stripe login
-
-# Форвардинг webhook на localhost
-stripe listen --forward-to localhost:4321/api/webhook
-
-# В другом терминале — тестовый платёж
-stripe trigger checkout.session.completed
-```
-
-## Skills директория
-
-По умолчанию лендинг ищет skills в `../skills/` (относительно `landing/`).
-Это соответствует структуре репозитория: `workspace/seo-skills-pack/skills/`.
-
-На production (Vercel) — либо включи skills в билд (скопируй в `public/skills/`),
-либо задай абсолютный путь через `SKILLS_DIR` ENV.
-
-**Если skills недоступны** — лендинг показывает fallback данные из `src/lib/skills.ts`.
-
-## Настройка Resend
-
-1. Зарегистрируйся на resend.com
-2. Добавь и верифицируй домен (например `skillsforge.dev`)
-3. Создай API key → `RESEND_API_KEY`
-4. Укажи `RESEND_FROM_EMAIL=hello@skillsforge.dev`
-
-## Production сборка
+## Build + release
 
 ```bash
 npm run build
-# → dist/ + .vercel/output/ (готово для Vercel)
+# → dist/ + .vercel/output/ ready for Vercel
 ```
 
-Для Vercel: просто подключи репозиторий — Astro Vercel adapter настроен автоматически.
+The Vercel project `skillsforge-landing` picks the latest commit on `main`. Environment variables are stored in the Vercel project settings (Production scope).
 
-## OG Image
+## Pending TODOs
 
-Заменить `public/og-image.png` реальным PNG 1200x630.
-Текущий файл — SVG-placeholder для разработки.
-Рекомендуем сгенерировать через Figma / Satori / og.image.
-
-## TODO
-
-- [ ] Заменить og-image.png реальным PNG 1200x630
-- [ ] Настроить Stripe Products и вписать Price IDs в .env
-- [ ] Верифицировать домен в Resend
-- [ ] Добавить реальный Discord invite URL
-- [ ] Настроить GitHub Release с ZIP архивом skills
-- [ ] Заменить плейсхолдерные тексты (copywriter → HeroSection, ProblemSection)
-- [ ] Добавить реальный Discord invite в .env
-- [ ] Настроить Stripe test mode → live mode переключение перед запуском
-- [ ] Настроить PostHog или Plausible analytics (добавить скрипт в BaseLayout.astro)
-- [ ] Мигрировать waitlist.json → Supabase после первых 100 лидов
+- [ ] Replace `public/og-image.png` placeholder with a real 1200×630 image
+- [ ] Publish SPF + DKIM + DMARC on `pitchinsixty.com` (see `../workspace/security-report.md` C3)
+- [ ] Set `DISCORD_INVITE_URL` to the real Pro/Team Discord invite
+- [ ] Add `@astrojs/sitemap` integration + `public/robots.txt`
+- [ ] A11y patches: `aria-expanded` on FAQ accordion, `aria-live` on free-skill status
+- [ ] Per-buyer ZIP watermarking via Gumroad Custom Delivery before scaling paid acquisition

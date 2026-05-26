@@ -3,65 +3,38 @@
  * Email-gate for the free teaser skill.
  *
  * Flow:
- * 1. Rate-limit (5 req/IP/15min).
+ * 1. Rate-limit (3 req/IP/15min).
  * 2. Body-size + Zod validation on email.
  * 3. Send the free SKILL.md content via Resend.
  * 4. BCC the admin (FOUNDER_EMAIL) so the founder has a live signup feed.
+ * 5. Fire-and-forget add to Resend Audience for drip campaigns.
  *
- * No filesystem writes — Vercel serverless filesystem is ephemeral and
- * read-only outside /tmp. To persist the waitlist properly, migrate to
- * Supabase / Resend Audience (TODO tracked in deployment/launch-runbook.md).
+ * In production, missing Resend config returns 503 — the preview-mode
+ * silent-success only triggers outside production.
  */
 
 import type { APIRoute } from 'astro';
 import { z } from 'zod/v4';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import {
   sendFreeSkillEmail,
   isResendConfigured,
   addContactToAudience,
 } from '../../lib/email';
 import { clientKey, gcRateLimit, rateLimit } from '../../lib/ratelimit';
+import { FREE_SKILL_CONTENT } from '../../lib/free-skill-content';
 
 const RequestSchema = z.object({
   email: z.email('Please enter a valid email address'),
 });
 
-const FALLBACK_SKILL_CONTENT = `---
-name: seo-meta-generator
-description: FREE TEASER — Generate Google-perfect title tag and meta description for any URL or topic.
----
-
-# SEO Meta Generator (FREE)
-
-Generate:
-- Title tag: 50–60 chars, primary keyword, brand suffix
-- Meta description: 140–160 chars, value + soft CTA
-- 3 variants per page for A/B testing
-
-## Usage
-Tell Claude: "Generate meta tags for: [page topic or URL]"
-
-Claude will output 3 variants with character counts.
-
----
-Get the full 11-skill SEO/GEO pack at https://skillsforge.dev
-`;
-
+/**
+ * Free skill content is inlined as a module constant
+ * (`src/lib/free-skill-content.ts`, generated from skills/free-teaser-seo-meta/SKILL.md).
+ * Reading the source SKILL.md from disk fails on Vercel because `..` is outside
+ * the deployed function bundle — we'd silently ship a truncated fallback.
+ */
 function getFreeSkillContent(): string {
-  const skillsDirEnv = import.meta.env.SKILLS_DIR;
-  const skillsDir = skillsDirEnv
-    ? skillsDirEnv
-    : join(process.cwd(), '..', 'skills');
-
-  const skillPath = join(skillsDir, 'free-teaser-seo-meta', 'SKILL.md');
-
-  try {
-    return readFileSync(skillPath, 'utf-8');
-  } catch {
-    return FALLBACK_SKILL_CONTENT;
-  }
+  return FREE_SKILL_CONTENT;
 }
 
 async function hashEmail(email: string): Promise<string> {
@@ -126,8 +99,19 @@ export const POST: APIRoute = async ({ request }) => {
   const masked = await hashEmail(email);
 
   if (!isResendConfigured()) {
-    // Preview mode — accept but warn
-    console.warn(`[free-skill] Resend not configured. signup sha256:${masked}`);
+    // Production must not lie to the user. Outside production we accept the
+    // signup for preview/local development convenience.
+    if (import.meta.env.PROD) {
+      console.error(`[free-skill] Resend not configured in PROD — refusing signup sha256:${masked}`);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          message: 'Email service unavailable. Please try again in a few minutes.',
+        }),
+        { status: 503, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    console.warn(`[free-skill] Resend not configured (preview). signup sha256:${masked}`);
     return new Response(
       JSON.stringify({ success: true, message: 'Check your inbox!' }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -144,27 +128,30 @@ export const POST: APIRoute = async ({ request }) => {
       bccEmail: founderEmail, // founder gets a live signup feed
     });
 
-    // Add to Resend Audience for drip campaigns. Don't await as critical —
-    // failure here must not break the user response.
-    const audienceResult = await addContactToAudience({
-      email,
-      source: 'free-skill',
-    });
-    if (!audienceResult.ok) {
-      console.warn(`[free-skill] Audience insert failed (${audienceResult.reason}) for sha256:${masked}`);
-    }
-
     console.log(`[free-skill] Sent free skill to sha256:${masked}`);
   } catch (err) {
     console.error('[free-skill] Email error:', err);
     return new Response(
       JSON.stringify({
         success: false,
-        message: 'Failed to send email. Please try again or contact support@skillsforge.dev',
+        message: 'Failed to send email. Please try again or contact hello@pitchinsixty.com',
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
+
+  // Fire-and-forget: audience insert must not block the user response or
+  // surface errors to the caller. Cap at 2s so a hung Resend call cannot
+  // hold the function past Vercel's budget.
+  void addContactToAudience({ email, source: 'free-skill' })
+    .then((result) => {
+      if (!result.ok) {
+        console.warn(`[free-skill] Audience insert failed (${result.reason}) for sha256:${masked}`);
+      }
+    })
+    .catch((err) => {
+      console.warn(`[free-skill] Audience insert threw for sha256:${masked}:`, err);
+    });
 
   return new Response(
     JSON.stringify({ success: true, message: 'Check your inbox!' }),

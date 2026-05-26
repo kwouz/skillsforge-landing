@@ -18,17 +18,22 @@ const buckets = new Map<string, Bucket>();
 
 /**
  * Best-effort client identification.
- * Cloudflare/Vercel forward original IP via `x-forwarded-for` (comma list — first hop wins).
- * Falls back to `x-real-ip`, then a generic bucket key.
+ *
+ * Vercel's edge proxy appends the real client IP as the LAST entry in
+ * `x-forwarded-for` and exposes it directly in `x-real-ip`. Trusting the
+ * first hop is a spoofing vector — a request can ship `X-Forwarded-For:
+ * 1.1.1.1, …` and bypass per-IP limits. We prefer `x-real-ip`, then fall
+ * back to the rightmost (untrusted) hop in XFF.
  */
 export function clientKey(request: Request): string {
+  const real = request.headers.get('x-real-ip');
+  if (real?.trim()) return real.trim();
   const fwd = request.headers.get('x-forwarded-for');
   if (fwd) {
-    const ip = fwd.split(',')[0]?.trim();
-    if (ip) return ip;
+    const hops = fwd.split(',').map((h) => h.trim()).filter(Boolean);
+    const lastHop = hops[hops.length - 1];
+    if (lastHop) return lastHop;
   }
-  const real = request.headers.get('x-real-ip');
-  if (real) return real.trim();
   return 'anonymous';
 }
 

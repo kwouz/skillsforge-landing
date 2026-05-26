@@ -3,7 +3,7 @@
 const faqs = [
   {
     q: "What's your refund policy?",
-    a: '30-day full refund, no questions asked. Email support@skillsforge.dev with your order number. Refunds process within 5 business days via Stripe.',
+    a: '30-day full refund, no questions asked. Email hello@pitchinsixty.com with your order number. Refunds process within 5 business days via the original payment method.',
   },
   {
     q: 'Can I use the skills on client projects?',
@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     q: 'How do Team seats work?',
-    a: 'A Team license covers 5 named users at one company — meaning 5 people can install and use the skills. Need more than 5 seats? Email support@skillsforge.dev for a custom arrangement.',
+    a: 'A Team license covers 5 named users at one company — meaning 5 people can install and use the skills. Need more than 5 seats? Email hello@pitchinsixty.com for a custom arrangement.',
   },
   {
     q: 'What skills are on the roadmap?',
@@ -61,6 +61,9 @@ const faqs = [
           <button
             class="faq-btn w-full flex items-center justify-between px-6 py-4 text-left"
             data-index={i}
+            aria-expanded="false"
+            aria-controls={`faq-answer-${i}`}
+            id={`faq-question-${i}`}
             style="background: transparent; border: none; cursor: pointer; color: #e8e8ed;"
           >
             <span class="font-medium text-sm pr-4">{faq.q}</span>
@@ -77,6 +80,9 @@ const faqs = [
           </button>
           <div
             class="faq-answer px-6 overflow-hidden"
+            id={`faq-answer-${i}`}
+            role="region"
+            aria-labelledby={`faq-question-${i}`}
             style="max-height: 0; transition: max-height 0.25s ease, padding 0.25s ease;"
           >
             <p class="text-sm pb-4" style="color: #8888a0; line-height: 1.7;">{faq.a}</p>
@@ -104,11 +110,13 @@ const faqs = [
       document.querySelectorAll<SVGElement>('.faq-icon').forEach((el) => {
         el.style.transform = 'rotate(0deg)';
       });
+      buttons.forEach((b) => b.setAttribute('aria-expanded', 'false'));
 
       // Открываем текущий если был закрыт
       if (!isOpen) {
         answer.style.maxHeight = answer.scrollHeight + 'px';
         if (icon) icon.style.transform = 'rotate(180deg)';
+        btn.setAttribute('aria-expanded', 'true');
       }
     });
   });

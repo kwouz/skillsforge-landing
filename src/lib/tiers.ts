@@ -1,9 +1,9 @@
 /**
  * Canonical tier definitions for SkillsForge.
  *
- * All code paths (checkout, webhook, email) must reference these constants
- * instead of duplicating the literal set. Unknown tiers in webhook payloads
- * must be rejected, not silently downgraded.
+ * /api/checkout uses `isTier` to validate user-supplied tier strings
+ * before mapping them to a Gumroad URL. Treat any value outside this
+ * set as a 400, never as a default.
  */
 
 export type Tier = 'starter' | 'pro' | 'team';

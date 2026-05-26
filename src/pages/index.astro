@@ -11,6 +11,8 @@ import { loadSkills } from '../lib/skills';
 import { fileURLToPath } from 'url';
 import { join, dirname } from 'path';
 
+export const prerender = true;
+
 // Путь к skills директории — через ENV или вычисляем от текущего файла
 // fileURLToPath корректно декодирует URL-encoded кириллицу и пробелы в путях
 const skillsDirEnv = import.meta.env.SKILLS_DIR;

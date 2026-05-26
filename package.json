@@ -12,18 +12,21 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^6.3.7",
     "@astrojs/vercel": "^10.0.7",
-    "tailwindcss": "^4.3.0",
     "@tailwindcss/vite": "^4.3.0",
-    "stripe": "^22.1.1",
+    "astro": "^6.3.7",
     "resend": "^6.12.3",
+    "tailwindcss": "^4.3.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.150",
+    "@composio/core": "^0.10.0",
+    "playwright": "^1.60.0",
     "typescript": "^5.8.3"
   },
   "overrides": {
-    "vite": "^7"
+    "vite": "^7",
+    "path-to-regexp": "^6.3.0"
   }
 }
