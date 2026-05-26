@@ -1,6 +1,6 @@
 ---
-// Секция прайсинга — 3 тира, каждый запускает Stripe Checkout
-// ENV vars: STRIPE_PRICE_STARTER, STRIPE_PRICE_PRO, STRIPE_PRICE_TEAM
+// Секция прайсинга — 3 тира, каждый редиректит на Gumroad checkout.
+// ENV vars: GUMROAD_URL_STARTER, GUMROAD_URL_PRO, GUMROAD_URL_TEAM
 ---
 
 <section id="pricing" class="py-20 px-4 sm:px-6" style="border-top: 1px solid rgba(255,255,255,0.06);">
@@ -75,7 +75,7 @@
         <!-- Бейдж Most Popular -->
         <div
           class="absolute -top-3.5 left-1/2 -translate-x-1/2 text-xs font-semibold px-3 py-1 rounded-full"
-          style="background: #7c5cff; color: #fff; white-space: nowrap;"
+          style="background: #5e3fcc; color: #fff; white-space: nowrap;"
         >
           Most Popular
         </div>
@@ -110,8 +110,8 @@
         <button
           data-tier="pro"
           class="checkout-btn w-full py-3 rounded-xl font-semibold text-sm transition-all glow-accent"
-          style="background: #7c5cff; color: #fff; border: none; cursor: pointer;"
-          onmouseover="this.style.background='#9070ff'"
+          style="background: #5e3fcc; color: #fff; border: none; cursor: pointer;"
+          onmouseover="this.style.background='#7c5cff'"
           onmouseout="this.style.background='#7c5cff'"
         >
           Get Pro Updates
@@ -165,14 +165,14 @@
     <!-- Гарантия -->
     <p class="text-center mt-8 text-sm" style="color: #8888a0;">
       All plans include a <strong style="color: #e8e8ed;">30-day no-questions-asked refund</strong>.
-      Email <a href="mailto:support@skillsforge.dev" style="color: #7c5cff; text-decoration: none;">support@skillsforge.dev</a>
+      Email <a href="mailto:hello@pitchinsixty.com" style="color: #a78bfa; text-decoration: underline; text-underline-offset: 2px;">hello@pitchinsixty.com</a>
     </p>
   </div>
 </section>
 
 <script>
-  // Stripe Checkout — клиентская часть
-  // Если STRIPE не настроен, показываем alert вместо редиректа (preview mode)
+  // Gumroad checkout — клиентская часть
+  // Если Gumroad URLs не настроены, показываем alert вместо редиректа (preview mode)
   document.querySelectorAll<HTMLButtonElement>('.checkout-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
       const tier = btn.dataset.tier;
@@ -192,8 +192,8 @@
         const data = await res.json() as { url?: string; error?: string; configured?: boolean };
 
         if (!data.configured) {
-          // Stripe не настроен — режим preview
-          alert('Stripe is not configured yet.\n\nAdd STRIPE_SECRET_KEY and STRIPE_PRICE_* to your .env file to enable checkout.\n\nSee .env.example for details.');
+          // Gumroad URLs не заданы — режим preview
+          alert('Checkout is not configured yet.\n\nAdd GUMROAD_URL_STARTER, GUMROAD_URL_PRO and GUMROAD_URL_TEAM to your .env file to enable checkout.\n\nSee .env.example for details.');
           return;
         }
 

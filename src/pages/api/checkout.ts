@@ -1,26 +1,41 @@
 /**
  * POST /api/checkout
- * Создаёт Stripe Checkout Session и возвращает URL для редиректа.
- * Если Stripe не настроен (нет ENV) — возвращает configured: false для preview.
+ *
+ * Returns the Gumroad checkout URL for the requested tier.
+ * Gumroad handles payment processing, fulfillment (auto-emails the ZIP)
+ * and subscription billing — no webhook or download endpoint is needed
+ * on our side.
+ *
+ * If a tier's URL is not configured (env missing / placeholder), returns
+ * { configured: false } so the landing page can show a preview notice.
  */
 
 import type { APIRoute } from 'astro';
-import Stripe from 'stripe';
 import { clientKey, gcRateLimit, rateLimit } from '../../lib/ratelimit';
+import { type Tier, isTier } from '../../lib/tiers';
 
-const SITE_URL = 'https://skillsforge.dev';
+const MAX_BODY_BYTES = 4096;
+
+function isConfiguredUrl(value: string | undefined): value is string {
+  if (!value) return false;
+  if (value.startsWith('placeholder')) return false;
+  try {
+    const u = new URL(value);
+    return u.protocol === 'https:' && u.hostname.endsWith('gumroad.com');
+  } catch {
+    return false;
+  }
+}
 
 export const POST: APIRoute = async ({ request }) => {
-  // Body size guard — reject oversized payloads before reading
   const contentLength = Number(request.headers.get('content-length') ?? '0');
-  if (contentLength > 4096) {
+  if (!Number.isFinite(contentLength) || contentLength > MAX_BODY_BYTES) {
     return new Response(
       JSON.stringify({ error: 'Payload too large' }),
       { status: 413, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  // Per-IP rate limit — defense in depth; Vercel Firewall is the primary control
   gcRateLimit();
   const rl = rateLimit('checkout', clientKey(request), 5, 60_000);
   if (!rl.ok) {
@@ -36,29 +51,16 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const secretKey = import.meta.env.STRIPE_SECRET_KEY;
-
-  // Preview mode — Stripe не настроен
-  if (!secretKey || secretKey.startsWith('sk_placeholder')) {
-    return new Response(
-      JSON.stringify({ configured: false }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
-  }
-
-  // Карта тиров → ENV переменные price_id
-  const priceMap: Record<string, string | undefined> = {
-    starter: import.meta.env.STRIPE_PRICE_STARTER,
-    pro: import.meta.env.STRIPE_PRICE_PRO,
-    team: import.meta.env.STRIPE_PRICE_TEAM,
-  };
-
-  let body: { tier?: string } = {};
+  let body: unknown = {};
   try {
-    body = await request.json();
+    const raw = await request.text();
+    if (raw.length > MAX_BODY_BYTES) {
+      return new Response(
+        JSON.stringify({ error: 'Payload too large' }),
+        { status: 413, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    body = raw ? JSON.parse(raw) : {};
   } catch {
     return new Response(
       JSON.stringify({ error: 'Invalid request body' }),
@@ -66,48 +68,31 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const tier = body.tier;
-  if (!tier || !priceMap[tier]) {
+  const tierField = (body as { tier?: unknown }).tier;
+  if (!isTier(tierField)) {
     return new Response(
       JSON.stringify({ error: 'Invalid or missing tier' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
+  const tier: Tier = tierField;
 
-  const priceId = priceMap[tier];
-  if (!priceId || priceId.startsWith('price_placeholder')) {
+  const urlMap: Record<Tier, string | undefined> = {
+    starter: import.meta.env.GUMROAD_URL_STARTER,
+    pro: import.meta.env.GUMROAD_URL_PRO,
+    team: import.meta.env.GUMROAD_URL_TEAM,
+  };
+
+  const url = urlMap[tier];
+  if (!isConfiguredUrl(url)) {
     return new Response(
       JSON.stringify({ configured: false }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  try {
-    const stripe = new Stripe(secretKey, { apiVersion: '2025-04-30.basil' });
-
-    // Hardcoded site URL — do NOT trust the Origin header (caller-controlled).
-    const baseUrl = import.meta.env.PUBLIC_SITE_URL ?? SITE_URL;
-
-    const session = await stripe.checkout.sessions.create({
-      mode: tier === 'starter' ? 'payment' : 'subscription',
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/cancel`,
-      allow_promotion_codes: true,
-      metadata: { tier },
-    });
-
-    return new Response(
-      JSON.stringify({ configured: true, url: session.url }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
-  } catch (err) {
-    // Log full error server-side; return generic message to client
-    const detail = err instanceof Error ? err.message : 'unknown';
-    console.error('[checkout] Stripe error:', detail);
-    return new Response(
-      JSON.stringify({ error: 'Unable to start checkout. Please try again.' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
+  return new Response(
+    JSON.stringify({ configured: true, url }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } }
+  );
 };
