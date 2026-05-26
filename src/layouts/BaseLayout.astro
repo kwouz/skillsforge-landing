@@ -1,106 +1,160 @@
 ---
 import '../styles/global.css';
+import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from '../lib/site';
 
 interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
   noIndex?: boolean;
+  pageType?: 'homepage' | 'free-skill' | 'success' | 'cancel';
 }
 
 const {
-  title = 'SkillsForge — SEO/GEO Skills for Claude Code',
-  description = '11 production-grade SEO/GEO skills for solo consultants. Pipeline-ready. From keyword research to AI citations. $49 lifetime.',
-  ogImage = '/og-image.png',
+  title = 'Claude Code SEO Skills Pack — 11 GEO Workflows | SkillsForge',
+  description = 'Download 11 production-grade SEO/GEO skills for Claude Code: keyword clustering, schema, GEO optimizer, AI citations. $49 lifetime — instant ZIP.',
+  ogImage = DEFAULT_OG_IMAGE,
   noIndex = false,
+  pageType = 'homepage',
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://skillsforge.dev');
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? SITE_URL).toString();
 
-// JSON-LD разметка для GEO-сигналов
+const homepageGraph = [
+  {
+    "@type": "Organization",
+    "@id": `${SITE_URL}/#org`,
+    "name": SITE_NAME,
+    "url": SITE_URL,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${SITE_URL}/og-image.png`,
+      "width": 1200,
+      "height": 630
+    },
+    "email": "hello@pitchinsixty.com",
+    "sameAs": [
+      "https://x.com/pitchinsixty",
+      "https://github.com/pitchinsixty"
+    ]
+  },
+  {
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    "url": SITE_URL,
+    "name": SITE_NAME,
+    "publisher": { "@id": `${SITE_URL}/#org` },
+    "inLanguage": "en-US"
+  },
+  {
+    "@type": "SoftwareApplication",
+    "@id": `${SITE_URL}/#product`,
+    "name": "SkillsForge SEO/GEO Pack",
+    "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "SEO Software",
+    "description": "11 production-grade SEO and GEO skills for Claude Code. Automate keyword clustering, technical audits, schema markup, AI citations, and more.",
+    "operatingSystem": "Cross-platform",
+    "softwareRequirements": "Claude Code, Cursor, Cline, or any CLI with SKILL.md support",
+    "offers": [
+      { "@type": "Offer", "name": "Starter — Lifetime", "price": "49", "priceCurrency": "USD", "availability": "https://schema.org/InStock", "priceValidUntil": "2027-12-31", "url": `${SITE_URL}/#pricing` },
+      { "@type": "Offer", "name": "Pro Update — Monthly", "price": "14", "priceCurrency": "USD", "availability": "https://schema.org/InStock", "priceValidUntil": "2027-12-31", "url": `${SITE_URL}/#pricing` },
+      { "@type": "Offer", "name": "Team — Annual", "price": "199", "priceCurrency": "USD", "availability": "https://schema.org/InStock", "priceValidUntil": "2027-12-31", "url": `${SITE_URL}/#pricing` }
+    ],
+    "publisher": { "@id": `${SITE_URL}/#org` }
+  },
+  {
+    "@type": "Product",
+    "@id": `${SITE_URL}/#starter-product`,
+    "name": "SkillsForge SEO/GEO Starter Pack",
+    "description": "11 production-grade Claude Code skills covering SEO and Generative Engine Optimization workflows.",
+    "image": `${SITE_URL}/og-image.png`,
+    "brand": { "@id": `${SITE_URL}/#org` },
+    "category": "Software / SEO Tools",
+    "offers": {
+      "@type": "Offer",
+      "url": `${SITE_URL}/#pricing`,
+      "priceCurrency": "USD",
+      "price": "49",
+      "availability": "https://schema.org/InStock",
+      "priceValidUntil": "2027-12-31",
+      "seller": { "@id": `${SITE_URL}/#org` }
+    }
+  },
+  {
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is a Claude Code skill?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A Claude Code skill (SKILL.md file) is a structured prompt that tells Claude exactly how to behave for a specific workflow. Drop it in your project and Claude follows a production-tested process instead of guessing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need Claude Code to use these skills?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "These skills are optimized for Claude Code but also work in Cursor, Cline, and any tool that supports SKILL.md / custom instructions files."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What do I get with the $49 Starter pack?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "11 production-grade SEO/GEO skills delivered as a ZIP to your email immediately after purchase. Includes a single-user license and lifetime access to v1.0."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is there a refund policy?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — 30-day no-questions-asked refund. Email hello@pitchinsixty.com with your order number; refunds process within 5 business days via the original payment method."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do these skills help with AI Overviews and GEO?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Several skills (geo-aeo-optimizer, ai-mentions-monitor, schema-markup-engineer) are specifically designed to improve citations in Google AI Overviews, Perplexity, ChatGPT, and Claude.ai answers — by structuring content for extraction, generating proper JSON-LD, and monitoring brand mentions in LLM outputs."
+        }
+      }
+    ]
+  }
+];
+
+const breadcrumbsByPage: Record<string, any> = {
+  'free-skill': {
+    "@type": "BreadcrumbList",
+    "@id": `${SITE_URL}/free-skill#breadcrumbs`,
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL },
+      { "@type": "ListItem", "position": 2, "name": "Free Skill", "item": `${SITE_URL}/free-skill` }
+    ]
+  },
+};
+
+const graph: any[] = pageType === 'homepage' ? homepageGraph : [
+  {
+    "@type": "Organization",
+    "@id": `${SITE_URL}/#org`,
+    "name": SITE_NAME,
+    "url": SITE_URL,
+    "logo": { "@type": "ImageObject", "url": `${SITE_URL}/og-image.png` }
+  }
+];
+
+if (breadcrumbsByPage[pageType]) {
+  graph.push(breadcrumbsByPage[pageType]);
+}
+
 const jsonLd = {
   "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://skillsforge.dev/#org",
-      "name": "SkillsForge",
-      "url": "https://skillsforge.dev",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://skillsforge.dev/og-image.png"
-      }
-    },
-    {
-      "@type": "SoftwareApplication",
-      "@id": "https://skillsforge.dev/#product",
-      "name": "SkillsForge SEO/GEO Pack",
-      "applicationCategory": "BusinessApplication",
-      "description": "11 production-grade SEO and GEO skills for Claude Code. Automate keyword clustering, technical audits, schema markup, AI citations, and more.",
-      "operatingSystem": "Claude Code, Cursor, any AI coding assistant",
-      "offers": [
-        {
-          "@type": "Offer",
-          "name": "Starter — Lifetime",
-          "price": "49",
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock"
-        },
-        {
-          "@type": "Offer",
-          "name": "Pro Update — Monthly",
-          "price": "14",
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock"
-        },
-        {
-          "@type": "Offer",
-          "name": "Team — Annual",
-          "price": "199",
-          "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock"
-        }
-      ],
-      "publisher": { "@id": "https://skillsforge.dev/#org" }
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What is a Claude Code skill?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "A Claude Code skill (SKILL.md file) is a structured prompt that tells Claude exactly how to behave for a specific workflow. Drop it in your project and Claude follows a production-tested process instead of guessing."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do I need Claude Code to use these skills?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "These skills are optimized for Claude Code but also work in Cursor, Cline, and any tool that supports SKILL.md / custom instructions files."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What do I get with the $49 Starter pack?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "11 production-grade SEO/GEO skills delivered as a ZIP to your email immediately after purchase. Includes a single-user license and lifetime access to v1.0."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is there a refund policy?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes — 30-day no-questions-asked refund. Email support@skillsforge.dev with your order number; refunds process within 5 business days via Stripe."
-          }
-        }
-      ]
-    }
-  ]
+  "@graph": graph,
 };
 ---
 
@@ -109,37 +163,50 @@ const jsonLd = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#0a0a0f" />
 
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonicalURL} />
-    {noIndex && <meta name="robots" content="noindex" />}
+    {!noIndex && <link rel="canonical" href={canonicalURL} />}
+    <meta name="robots" content={noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1"} />
+    <meta name="googlebot" content={noIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1"} />
 
-    <!-- OG / Twitter -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SkillsForge — SEO/GEO Skills Pack for Claude Code" />
     <meta property="og:url" content={canonicalURL} />
-    <meta property="og:site_name" content="SkillsForge" />
+    <meta property="og:site_name" content={SITE_NAME} />
+
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content="SkillsForge — SEO/GEO Skills Pack for Claude Code" />
+    <meta name="twitter:site" content="@pitchinsixty" />
+    <meta name="twitter:creator" content="@pitchinsixty" />
 
-    <!-- Favicon placeholder -->
+    <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="alternate" hreflang="x-default" href={SITE_URL} />
+    <link rel="alternate" hreflang="en" href={SITE_URL} />
 
-    <!-- Preload Inter font через Google Fonts -->
+    <!-- Fonts: non-blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" /></noscript>
 
-    <!-- JSON-LD для GEO/SEO -->
+    <!-- JSON-LD structured data -->
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body class="min-h-screen antialiased" style="background-color: #0a0a0f; color: #e8e8ed;">

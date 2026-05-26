@@ -1,0 +1,47 @@
+# SkillsForge
+
+> Production-grade Claude Code skills for SEO and GEO (Generative Engine Optimization) workflows. 11 skills covering keyword research, content briefs, technical audits, schema markup, AI Overviews monitoring, and backlink outreach. Sold as one-time $49 lifetime ZIP or $14/mo for updates.
+
+## What is SkillsForge
+
+SkillsForge is a curated pack of 11 production-grade Claude Code / Cursor skills (SKILL.md files) for SEO and Generative Engine Optimization (GEO) workflows. The skills are designed for solo SEO consultants and small agencies who already use Claude Code or Cursor and want to automate repetitive audits, content briefs, schema markup, and AI Overviews / Perplexity / ChatGPT citation monitoring.
+
+## Pages
+
+- [Homepage](https://skillsforge.pitchinsixty.com/): Hero, problem statement, all 11 skills, 3 pricing tiers, FAQ
+- [Free Skill](https://skillsforge.pitchinsixty.com/free-skill): SEO Meta Generator — free email-gated download, no credit card
+
+## Skills included
+
+1. seo-pseo-generator — programmatic SEO at scale (datasets → 1000+ pages)
+2. geo-aeo-optimizer — visibility in ChatGPT, Claude, Perplexity, Gemini
+3. schema-markup-engineer — JSON-LD schema for every page type
+4. content-brief-builder — H1, H2, intent, entities, internal links
+5. technical-seo-auditor — crawl, render, CWV, canonical, hreflang
+6. keyword-cluster-mapper — semantic clusters + content gap analysis
+7. internal-linking-architect — link graph optimization
+8. ai-mentions-monitor — daily brand mention tracking in LLMs
+9. backlink-outreach-engine — prospecting, personalized pitch, follow-up
+10. gbp-local-seo — Google Business Profile + local citations
+11. seo-meta-generator (FREE) — title tags + meta descriptions, 3 A/B variants
+
+## Pricing
+
+- Starter: $49 lifetime — 11 skills v1.0, single-user license, lifetime access
+- Pro: $14/month — Starter + 2 new skills/month + private Discord + monthly Q&A
+- Team: $199/year — Pro + 5 seats + priority support + 1 custom skill request per quarter
+
+## Why SkillsForge
+
+- AI Overviews now appear on ~48% of Google searches (2026). SEO traffic is down 30-60% in many niches. SkillsForge codifies the workflows that work in the new GEO era.
+- Every skill is production-tested in the founder's portfolio (Lunelo, Nexora, Litauyoga, Dominicana projects). No theory-only content.
+- Drop-in compatible with Claude Code, Cursor, Cline, and any tool that supports SKILL.md.
+
+## Refund
+
+30-day no-questions refund. Email hello@pitchinsixty.com with the order number.
+
+## Contact
+
+- Email: hello@pitchinsixty.com
+- Website: https://skillsforge.pitchinsixty.com/
