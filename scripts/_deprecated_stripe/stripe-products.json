@@ -1,0 +1,24 @@
+{
+  "starter": {
+    "product_id": "prod_UZkHz6fAMtuLIr",
+    "price_id": "price_1TaanECRPbDk2eeBkVSSEe7P",
+    "unit_amount": 4900,
+    "recurring": null
+  },
+  "pro": {
+    "product_id": "prod_UZkHYWUXyUOyvV",
+    "price_id": "price_1TaanHCRPbDk2eeB2ZjRioac",
+    "unit_amount": 1400,
+    "recurring": {
+      "interval": "month"
+    }
+  },
+  "team": {
+    "product_id": "prod_UZkH9vCaAvYjG1",
+    "price_id": "price_1TaanJCRPbDk2eeBLJBbYNEX",
+    "unit_amount": 19900,
+    "recurring": {
+      "interval": "year"
+    }
+  }
+}

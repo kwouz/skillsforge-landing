@@ -1,0 +1,38 @@
+{
+  "products": {
+    "starter": {
+      "product_id": "prod_UZmBonv8vvStAc",
+      "price_id": "price_1TaccmCRPbDk2eeBEzBAz239"
+    },
+    "pro": {
+      "product_id": "prod_UZmBQL2YqlB0AB",
+      "price_id": "price_1TaccnCRPbDk2eeBkIKhKO8c"
+    },
+    "team": {
+      "product_id": "prod_UZmBq7lmKrT1mF",
+      "price_id": "price_1TaccoCRPbDk2eeB9Fhz2iIu"
+    }
+  },
+  "promos": {
+    "EARLYBIRD39": {
+      "coupon_id": "yncIBgRx",
+      "promo_id": "promo_1TaccpCRPbDk2eeBinfK9Uhl"
+    },
+    "EARLYBIRDPRO9": {
+      "coupon_id": "m8k7whtd",
+      "promo_id": "promo_1TaccpCRPbDk2eeBeLNK7ekv"
+    },
+    "SEOFOMO30": {
+      "coupon_id": "zwhVMIFd",
+      "promo_id": "promo_1TaccqCRPbDk2eeBUYOhS84U"
+    },
+    "LILYRAY30": {
+      "coupon_id": "wXAiI5a7",
+      "promo_id": "promo_1TaccrCRPbDk2eeBaAUYhTE2"
+    },
+    "CYRUS30": {
+      "coupon_id": "vUaFEqzs",
+      "promo_id": "promo_1TaccsCRPbDk2eeBOMWBDcWw"
+    }
+  }
+}

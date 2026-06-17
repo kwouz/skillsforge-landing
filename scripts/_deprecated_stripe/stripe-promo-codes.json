@@ -1,0 +1,32 @@
+{
+  "EARLYBIRD39": {
+    "coupon_id": "3h4mPqcQ",
+    "promo_id": "promo_1TabDOCRPbDk2eeBpA1GrJ8d",
+    "percent_off": 20,
+    "duration": "once"
+  },
+  "EARLYBIRDPRO9": {
+    "coupon_id": "e5eVDAbV",
+    "promo_id": "promo_1TabDRCRPbDk2eeBnayaavma",
+    "percent_off": 36,
+    "duration": "repeating"
+  },
+  "SEOFOMO30": {
+    "coupon_id": "WfpACFmA",
+    "promo_id": "promo_1TabDTCRPbDk2eeB3BdBMEuk",
+    "percent_off": 30,
+    "duration": "once"
+  },
+  "LILYRAY30": {
+    "coupon_id": "WAmf5oof",
+    "promo_id": "promo_1TabDWCRPbDk2eeBV5PSCABO",
+    "percent_off": 30,
+    "duration": "once"
+  },
+  "CYRUS30": {
+    "coupon_id": "ywoYAmZi",
+    "promo_id": "promo_1TabDYCRPbDk2eeBgFGjKKmH",
+    "percent_off": 30,
+    "duration": "once"
+  }
+}

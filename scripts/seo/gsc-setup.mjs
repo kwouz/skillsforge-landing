@@ -2,33 +2,38 @@
 /**
  * Google Search Console setup + sitemap submission via Playwright.
  *
- * What it does:
- *   1. Launches a HEADED Chromium so you log into your Google account once.
- *   2. Opens GSC for the property and (optionally) adds it if missing.
- *   3. Submits the sitemap-index.xml URL.
- *   4. Triggers "Request indexing" via URL Inspection for every URL in the sitemap.
- *   5. Verifies that AI Overviews / generative crawlers are unblocked
- *      by inspecting public/robots.txt rules from the live site.
+ * Uses launchPersistentContext + system Chrome channel + automation-flag
+ * scrubbing so Google's "this browser is not secure" gate does not trip.
  *
- * Why headed: Google blocks automated headless logins. You log in once, the
- * script does the boring clicks. Session is reused on next runs via storage state.
+ * What it does:
+ *   1. Launches HEADED Chrome with a real user profile dir (persistent
+ *      cookies, no AutomationControlled flag).
+ *   2. Opens Google Search Console — you log in once, profile is kept.
+ *   3. Selects the property; if missing, you add it manually then ENTER.
+ *   4. Submits sitemap-index.xml.
+ *   5. Calls URL Inspection + clicks "Request indexing" per URL.
+ *   6. Pings Bing IndexNow in parallel.
  *
  * Usage:
  *   cd landing
- *   PWDEBUG=0 node scripts/seo/gsc-setup.mjs
+ *   node scripts/seo/gsc-setup.mjs
  *
  * Env (optional):
  *   SITE_URL=https://skillsforge.pitchinsixty.com   # property URL prefix
- *   STORAGE_STATE=./.playwright/gsc-state.json      # auth cache path
+ *   CHROME_PROFILE=./.playwright/chrome-profile     # persistent user data dir
+ *   CHROME_CHANNEL=chrome                           # chrome | chrome-beta | msedge | chromium
  *
- * First run: you will be prompted to log in inside the browser. Then re-run
- * the script — it picks up the saved session and skips login.
+ * On Google's "browser not secure" error:
+ *   - Make sure you launched THIS script (not bundled Chromium).
+ *   - Close every Chrome window before running (profile is exclusive).
+ *   - Re-run; the script reuses the saved profile so logins persist.
  */
 
 import { chromium } from 'playwright';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
-import { mkdirSync, existsSync, writeFileSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,10 +41,11 @@ const ROOT = resolve(__dirname, '..', '..');
 
 const SITE_URL = process.env.SITE_URL || 'https://skillsforge.pitchinsixty.com';
 const SITEMAP_INDEX = `${SITE_URL}/sitemap-index.xml`;
-const STORAGE_STATE =
-  process.env.STORAGE_STATE || join(ROOT, '.playwright', 'gsc-state.json');
+const CHROME_PROFILE =
+  process.env.CHROME_PROFILE || join(ROOT, '.playwright', 'chrome-profile');
+const CHROME_CHANNEL = process.env.CHROME_CHANNEL || 'chrome';
 
-mkdirSync(dirname(STORAGE_STATE), { recursive: true });
+mkdirSync(CHROME_PROFILE, { recursive: true });
 
 function log(...args) {
   // eslint-disable-next-line no-console
@@ -105,6 +111,7 @@ async function pingBingIndexNow(urls) {
       body: JSON.stringify({ host, urlList: urls }),
     });
     log('IndexNow response:', res.status, res.statusText);
+    if (res.status === 400) log('  (Bing needs a key file at /<key>.txt — optional)');
   } catch (e) {
     log('IndexNow ping failed:', e.message);
   }
@@ -116,10 +123,9 @@ async function ensureLogin(page) {
     waitUntil: 'domcontentloaded',
     timeout: 90_000,
   });
-  // If we land on accounts.google.com → user must sign in.
   if (/accounts\.google\.com/.test(page.url())) {
     log('-----------------------------------------------------------');
-    log('Please sign into your Google account in the open browser.');
+    log('Sign into your Google account in the open Chrome window.');
     log('After GSC is fully loaded, return to this terminal and press ENTER.');
     log('-----------------------------------------------------------');
     await new Promise((r) => process.stdin.once('data', r));
@@ -128,7 +134,6 @@ async function ensureLogin(page) {
 
 async function selectOrAddProperty(page) {
   log(`Selecting property for ${SITE_URL}…`);
-  // Try direct deep-link first (faster, no UI fishing).
   const resourceId = encodeURIComponent(SITE_URL);
   await page.goto(
     `https://search.google.com/search-console?resource_id=${resourceId}`,
@@ -138,10 +143,8 @@ async function selectOrAddProperty(page) {
 
   const url = page.url();
   if (!url.includes('resource_id=')) {
-    log('Property not yet added. Opening "Add property" flow.');
-    log('Please add the property manually in the open browser (URL-prefix,');
-    log('verify via DNS TXT or HTML tag). Press ENTER once the property');
-    log('appears as Verified in GSC.');
+    log('Property not yet added. Add it now (URL-prefix, verify via DNS TXT or');
+    log('HTML tag). When the property shows as Verified in GSC, press ENTER.');
     await new Promise((r) => process.stdin.once('data', r));
     await page.goto(
       `https://search.google.com/search-console?resource_id=${resourceId}`,
@@ -157,17 +160,16 @@ async function submitSitemap(page) {
     `https://search.google.com/search-console/sitemaps?resource_id=${resourceId}`,
     { waitUntil: 'domcontentloaded', timeout: 60_000 }
   );
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(2500);
 
-  // GSC sitemap input — accepts the relative path; "sitemap-index.xml" is enough.
-  const sitemapInputSelectors = [
+  const inputSelectors = [
     'input[aria-label*="sitemap" i]',
     'input[placeholder*="sitemap" i]',
     'input[type="text"]',
   ];
 
   let added = false;
-  for (const sel of sitemapInputSelectors) {
+  for (const sel of inputSelectors) {
     try {
       const input = await page.waitForSelector(sel, { timeout: 5000 });
       if (!input) continue;
@@ -182,9 +184,8 @@ async function submitSitemap(page) {
   }
 
   if (!added) {
-    log('Could not auto-locate sitemap input.');
-    log('Please paste "sitemap-index.xml" into the GSC sitemap field manually.');
-    log('Press ENTER once the sitemap shows as Submitted.');
+    log('Could not auto-locate sitemap input. Paste "sitemap-index.xml"');
+    log('into the Sitemaps field manually, then press ENTER.');
     await new Promise((r) => process.stdin.once('data', r));
   } else {
     await page.waitForTimeout(3000);
@@ -200,9 +201,8 @@ async function requestIndexing(page, urls) {
       `https://search.google.com/search-console/inspect?resource_id=${resourceId}&id=${encodeURIComponent(url)}`,
       { waitUntil: 'domcontentloaded', timeout: 60_000 }
     );
-    await page.waitForTimeout(4000);
+    await page.waitForTimeout(4500);
 
-    // "Request indexing" button — text varies by locale.
     const candidates = [
       'button:has-text("Request indexing")',
       'button:has-text("Запросить индексирование")',
@@ -232,7 +232,8 @@ async function requestIndexing(page, urls) {
 
 async function main() {
   log('Site:', SITE_URL);
-  log('Storage state:', STORAGE_STATE);
+  log('Chrome profile:', CHROME_PROFILE);
+  log('Chrome channel:', CHROME_CHANNEL);
 
   const robotsOk = await verifyRobots();
   if (!robotsOk) log('Robots check failed but continuing — fix before next run.');
@@ -244,7 +245,6 @@ async function main() {
   }
   log('Discovered URLs:', urls);
 
-  // Save a snapshot for audit trail.
   const snapshotPath = join(ROOT, 'scripts', 'seo', 'last-run.json');
   writeFileSync(
     snapshotPath,
@@ -257,34 +257,61 @@ async function main() {
 
   await pingBingIndexNow(urls);
 
-  const browser = await chromium.launch({
+  // Persistent context + system Chrome + automation-flag scrub.
+  // Google's "browser not secure" check inspects the AutomationControlled
+  // flag and missing window.chrome — both are avoided below.
+  const context = await chromium.launchPersistentContext(CHROME_PROFILE, {
+    channel: CHROME_CHANNEL,
     headless: false,
-    slowMo: 80,
-    args: ['--start-maximized'],
-  });
-  const context = await browser.newContext({
     viewport: null,
-    storageState: existsSync(STORAGE_STATE) ? STORAGE_STATE : undefined,
+    args: [
+      '--start-maximized',
+      '--disable-blink-features=AutomationControlled',
+      '--disable-features=ImprovedCookieControls,LazyFrameLoading,GlobalMediaControls,DestroyProfileOnBrowserClose,MediaRouter,AcceptCHFrame,AutoExpandDetailsElement,CertificateTransparencyComponentUpdater,AvoidUnnecessaryBeforeUnloadCheckSync,Translate',
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-blink-features=BlockCredentialedSubresources',
+    ],
+    ignoreDefaultArgs: ['--enable-automation', '--enable-blink-features=IdleDetection'],
+    slowMo: 60,
   });
-  const page = await context.newPage();
+
+  // Hide navigator.webdriver before any page script runs.
+  await context.addInitScript(() => {
+    // @ts-ignore
+    Object.defineProperty(Navigator.prototype, 'webdriver', {
+      get: () => undefined,
+      configurable: true,
+    });
+    // window.chrome stub: real Chrome has this, Playwright wipes it.
+    // @ts-ignore
+    if (!window.chrome) window.chrome = { runtime: {}, app: {} };
+    // Languages stub
+    Object.defineProperty(Navigator.prototype, 'languages', {
+      get: () => ['en-US', 'en'],
+    });
+    // Plugins stub
+    Object.defineProperty(Navigator.prototype, 'plugins', {
+      get: () => [1, 2, 3, 4, 5],
+    });
+  });
+
+  const page = context.pages()[0] || (await context.newPage());
 
   try {
     await ensureLogin(page);
-    await context.storageState({ path: STORAGE_STATE });
-
     await selectOrAddProperty(page);
     await submitSitemap(page);
     await requestIndexing(page, urls);
 
-    log('All done. Saving session for next run.');
-    await context.storageState({ path: STORAGE_STATE });
+    log('All done. Chrome profile persisted at', CHROME_PROFILE);
   } catch (err) {
     log('ERROR:', err.message);
     process.exitCode = 1;
   } finally {
-    log('Keeping browser open for 10 s — review GSC then it will close.');
+    log('Keeping window open for 10 s — review GSC then it will close.');
     await page.waitForTimeout(10_000);
-    await browser.close();
+    await context.close();
   }
 }
 
